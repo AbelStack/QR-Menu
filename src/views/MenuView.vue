@@ -4,7 +4,7 @@
     <section class="hero-section">
       <div class="hero-overlay"></div>
       <img 
-        src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&q=80" 
+        src="/hero.jpg" 
         alt="Hero"
         class="hero-image"
       />
