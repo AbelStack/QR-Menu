@@ -17,7 +17,7 @@
               alt="Yummy Cafe Logo"
               class="brand-logo"
             />
-            <span class="brand-name">Yummy Cafe<br/>ያሚ ካፌ</span>
+            <span class="brand-name">Abel Cafe<br/> አቤል ካፌ</span>
           </div>
           <button class="lang-btn" @click="$router.push('/profile')">
             {{ currentLanguage }}
