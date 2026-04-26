@@ -232,7 +232,7 @@ export const restaurantData: RestaurantData = {
           name: "Pan Cake", 
           nameAmharic: "ፓን ኬክ", 
           price: 200,
-          image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&q=80",
+          image: "/hero.jpg",
           description: "Fluffy pancakes with syrup"
         },
         { 
