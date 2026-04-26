@@ -12,10 +12,12 @@
       <div class="hero-content">
         <div class="hero-header">
           <div class="brand">
-            <svg class="crown-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L15 8L21 9L16.5 14L18 20L12 17L6 20L7.5 14L3 9L9 8L12 2Z"/>
-            </svg>
-            <span class="brand-name">Yummy Cafe</span>
+            <img 
+              src="/logo.jpg" 
+              alt="Yummy Cafe Logo"
+              class="brand-logo"
+            />
+            <span class="brand-name">Yummy Cafe<br/>ያሚ ካፌ</span>
           </div>
           <button class="lang-btn" @click="$router.push('/profile')">
             {{ currentLanguage }}
@@ -29,7 +31,7 @@
         <div class="hero-text">
           <h1 class="hero-title">
             {{ t('heroTitle1') }}<br/>
-            <span class="hero-subtitle">{{ t('heroTitle2') }}</span>
+            {{ t('heroTitle2') }}
           </h1>
         </div>
       </div>

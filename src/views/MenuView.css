@@ -46,7 +46,16 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  padding: 2px;
 }
 
 .crown-icon {
@@ -56,9 +65,11 @@
 }
 
 .brand-name {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: #fff;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .lang-btn {
@@ -90,6 +101,7 @@
   line-height: 1.2;
   color: #fff;
   margin: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .hero-subtitle {
