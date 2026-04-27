@@ -16,7 +16,7 @@ interface UseApiReturn<T> {
  * Composable for handling API calls with loading and error states
  * 
  * @example
- * const { data, loading, error, execute } = useApi(exampleService.getItems)
+ * const { data, loading, error, execute } = useApi(menuService.getMenuItems)
  * await execute()
  */
 export function useApi<T>(

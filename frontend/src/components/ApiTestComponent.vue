@@ -22,8 +22,11 @@
 
     <div class="test-section">
       <h3>Create Item</h3>
-      <input v-model="newItem.name" placeholder="Item name" />
+      <input v-model="newItem.name" placeholder="Item name (English)" />
+      <input v-model="newItem.name_amharic" placeholder="Item name (Amharic)" />
       <input v-model="newItem.description" placeholder="Description" />
+      <input v-model.number="newItem.category_id" type="number" placeholder="Category ID" />
+      <input v-model.number="newItem.price" type="number" placeholder="Price" />
       <button @click="createItem" :disabled="loading">Create Item</button>
       <div v-if="createResponse" class="result">
         <pre>{{ JSON.stringify(createResponse, null, 2) }}</pre>
@@ -39,7 +42,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import api from '@/services/api'
-import { exampleService } from '@/services/exampleService'
+import { menuService } from '@/services/menuService'
 
 const loading = ref(false)
 const error = ref('')
@@ -48,7 +51,10 @@ const items = ref<any[]>([])
 const createResponse = ref<any>(null)
 const newItem = ref({
   name: '',
-  description: ''
+  name_amharic: '',
+  description: '',
+  category_id: 1,
+  price: 0
 })
 
 async function testHealth() {
@@ -72,7 +78,7 @@ async function fetchItems() {
   items.value = []
   
   try {
-    const response = await exampleService.getItems()
+    const response = await menuService.getMenuItems()
     items.value = response.data
   } catch (err: any) {
     error.value = err.message || 'Failed to fetch items'
@@ -92,9 +98,9 @@ async function createItem() {
   createResponse.value = null
   
   try {
-    const response = await exampleService.createItem(newItem.value)
+    const response = await menuService.admin.createMenuItem(newItem.value)
     createResponse.value = response
-    newItem.value = { name: '', description: '' }
+    newItem.value = { name: '', name_amharic: '', description: '', category_id: 1, price: 0 }
   } catch (err: any) {
     error.value = err.message || 'Failed to create item'
   } finally {

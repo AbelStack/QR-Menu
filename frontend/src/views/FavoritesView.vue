@@ -83,11 +83,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { restaurantData } from '@/data/menuData';
+import { useMenuStore } from '@/stores/menuStore';
 
+const menuStore = useMenuStore();
 const favoriteItems = ref<any[]>([]);
 
-onMounted(() => {
+onMounted(async () => {
+  await menuStore.loadAll();
   loadFavorites();
 });
 
@@ -95,12 +97,10 @@ const loadFavorites = () => {
   const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
   const allItems: any[] = [];
   
-  restaurantData.categories.forEach(category => {
-    category.items.forEach(item => {
-      if (favorites.includes(item.name)) {
-        allItems.push({ ...item, isFavorite: true });
-      }
-    });
+  menuStore.menuItems.forEach(item => {
+    if (favorites.includes(item.name)) {
+      allItems.push({ ...item, isFavorite: true });
+    }
   });
   
   favoriteItems.value = allItems;
