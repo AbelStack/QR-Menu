@@ -125,7 +125,7 @@
                 <div class="item-image-container">
                   <img 
                     v-if="item.image"
-                    :src="item.image.startsWith('http') ? item.image : `http://localhost:8000${item.image}`" 
+                    :src="getImageUrl(item.image)" 
                     :alt="item.name"
                     class="item-image"
                   />
@@ -220,7 +220,7 @@
         <div class="detail-image-container">
           <img 
             v-if="selectedItem.image"
-            :src="selectedItem.image.startsWith('http') ? selectedItem.image : `http://localhost:8000${selectedItem.image}`" 
+            :src="getImageUrl(selectedItem.image)" 
             :alt="selectedItem.name"
             class="detail-image"
           />
@@ -412,6 +412,14 @@ const resetFilters = () => {
 
 const applyFilters = () => {
   showFilterModal.value = false;
+};
+
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://yummycafe.clearsightinitiative.org';
+  return `${baseUrl}${imagePath}`;
 };
 </script>
 
