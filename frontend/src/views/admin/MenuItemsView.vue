@@ -121,7 +121,7 @@
                 <div class="item-image-wrapper">
                   <img 
                     v-if="item.image" 
-                    :src="item.image.startsWith('http') ? item.image : `http://localhost:8000${item.image}`" 
+                    :src="getImageUrl(item.image)" 
                     :alt="item.name"
                     class="item-image"
                     @error="(e) => { console.error('Failed to load image:', item.image); (e.target as HTMLImageElement).style.display = 'none'; }"
@@ -796,6 +796,14 @@ onMounted(() => {
 const logout = () => {
   localStorage.removeItem('admin_token');
   router.push('/admin/login');
+};
+
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://yummycafe.clearsightinitiative.org';
+  return `${baseUrl}${imagePath}`;
 };
 </script>
 
