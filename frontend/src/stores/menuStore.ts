@@ -14,7 +14,7 @@ export const useMenuStore = defineStore('menu', () => {
   const categoriesWithItems = computed(() => {
     return categories.value.map(category => ({
       ...category,
-      items: menuItems.value.filter(item => item.category_id === category.id && item.is_available)
+      items: menuItems.value.filter(item => String(item.category_id) === String(category.id) && item.is_available)
     }))
   })
 
@@ -74,7 +74,7 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   function getItemsByCategory(categoryId: number) {
-    return menuItems.value.filter(item => item.category_id === categoryId && item.is_available)
+    return menuItems.value.filter(item => String(item.category_id) === String(categoryId) && item.is_available)
   }
 
   function getCategoryBySlug(slug: string) {
