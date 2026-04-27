@@ -96,6 +96,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '@/services/api';
 
 const router = useRouter();
 
@@ -114,19 +115,20 @@ const handleLogin = async () => {
   error.value = '';
 
   try {
-    // For now, simple validation
-    if (credentials.value.email === 'admin@yummycafe.com' && credentials.value.password === 'admin123') {
+    const response = await api.post('/auth/login', credentials.value);
+    
+    if (response.data.token) {
       // Store auth token
-      localStorage.setItem('auth_token', 'admin-token-' + Date.now());
-      localStorage.setItem('user_role', 'admin');
+      localStorage.setItem('admin_token', response.data.token);
+      localStorage.setItem('admin_user', JSON.stringify(response.data.user));
       
       // Redirect to dashboard
       router.push('/admin/dashboard');
     } else {
-      error.value = 'Invalid email or password';
+      error.value = 'Invalid response from server';
     }
-  } catch (err) {
-    error.value = 'An error occurred. Please try again.';
+  } catch (err: any) {
+    error.value = err.response?.data?.message || 'Invalid email or password';
   } finally {
     isLoading.value = false;
   }

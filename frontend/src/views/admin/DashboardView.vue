@@ -243,7 +243,7 @@ onMounted(() => {
 });
 
 const logout = () => {
-  localStorage.removeItem('auth_token');
+  localStorage.removeItem('admin_token');
   router.push('/admin/login');
 };
 </script>
