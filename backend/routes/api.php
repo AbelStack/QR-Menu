@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\MenuItemController;
+use App\Http\Controllers\RestaurantSettingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -7,18 +11,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// Example API routes
+// Health check
 Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
@@ -27,40 +22,43 @@ Route::get('/health', function () {
     ]);
 });
 
-// Example CRUD routes (you can customize these based on your needs)
-Route::prefix('items')->group(function () {
-    Route::get('/', function () {
-        return response()->json([
-            'data' => [
-                ['id' => 1, 'name' => 'Item 1', 'description' => 'Description 1'],
-                ['id' => 2, 'name' => 'Item 2', 'description' => 'Description 2'],
-            ],
-        ]);
-    });
+// Auth routes
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
+});
 
-    Route::get('/{id}', function ($id) {
-        return response()->json([
-            'data' => ['id' => $id, 'name' => 'Item ' . $id, 'description' => 'Description ' . $id],
-        ]);
-    });
+// Public routes (for customer-facing menu)
+Route::prefix('public')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/menu-items', [MenuItemController::class, 'index']);
+    Route::get('/menu-items/{id}', [MenuItemController::class, 'show']);
+    Route::get('/settings', [RestaurantSettingController::class, 'index']);
+});
 
-    Route::post('/', function (Request $request) {
-        return response()->json([
-            'message' => 'Item created successfully',
-            'data' => $request->all(),
-        ], 201);
-    });
+// Admin routes (protected with auth)
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'adminIndex']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::get('/categories/{id}', [CategoryController::class, 'show']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::post('/categories/reorder', [CategoryController::class, 'reorder']);
 
-    Route::put('/{id}', function (Request $request, $id) {
-        return response()->json([
-            'message' => 'Item updated successfully',
-            'data' => array_merge(['id' => $id], $request->all()),
-        ]);
-    });
+    // Menu Items
+    Route::get('/menu-items', [MenuItemController::class, 'adminIndex']);
+    Route::post('/menu-items', [MenuItemController::class, 'store']);
+    Route::get('/menu-items/{id}', [MenuItemController::class, 'show']);
+    Route::put('/menu-items/{id}', [MenuItemController::class, 'update']);
+    Route::delete('/menu-items/{id}', [MenuItemController::class, 'destroy']);
+    Route::post('/menu-items/{id}/toggle-availability', [MenuItemController::class, 'toggleAvailability']);
+    Route::post('/menu-items/{id}/toggle-featured', [MenuItemController::class, 'toggleFeatured']);
+    Route::post('/menu-items/upload-image', [MenuItemController::class, 'uploadImage']);
 
-    Route::delete('/{id}', function ($id) {
-        return response()->json([
-            'message' => 'Item deleted successfully',
-        ]);
-    });
+    // Restaurant Settings
+    Route::get('/settings', [RestaurantSettingController::class, 'index']);
+    Route::put('/settings', [RestaurantSettingController::class, 'update']);
+    Route::post('/settings/upload-logo', [RestaurantSettingController::class, 'uploadLogo']);
 });

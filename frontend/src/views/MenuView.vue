@@ -99,12 +99,12 @@
         >
           <button 
             class="category-header"
-            @click="toggleCategory(category.id)"
+            @click="toggleCategory(category.slug)"
           >
             <h3 class="category-title">{{ category.name.toUpperCase() }}</h3>
             <svg 
               class="chevron-icon"
-              :class="{ expanded: expandedCategories.includes(category.id) }"
+              :class="{ expanded: expandedCategories.includes(category.slug) }"
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor"
@@ -115,7 +115,7 @@
 
           <!-- Category Items -->
           <transition name="expand">
-            <div v-if="expandedCategories.includes(category.id)" class="category-items">
+            <div v-if="expandedCategories.includes(category.slug)" class="category-items">
               <div 
                 v-for="(item, index) in getFilteredItems(category)" 
                 :key="index"
@@ -245,7 +245,7 @@
 
           <h2 class="detail-name">{{ selectedItem.name }}</h2>
           <p class="detail-price">{{ convertPrice(selectedItem.price) }} {{ currentCurrency }}</p>
-          <p class="detail-description">{{ selectedItem.description || selectedItem.nameAmharic }}</p>
+          <p class="detail-description">{{ selectedItem.description || selectedItem.name_amharic }}</p>
 
           <div v-if="selectedItem.tags && selectedItem.tags.length" class="detail-tags">
             <span v-for="tag in selectedItem.tags" :key="tag" class="detail-tag">
@@ -305,56 +305,62 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { restaurantData } from '@/data/menuData';
+import { useMenuStore } from '@/stores/menuStore';
 import { useTranslation } from '@/composables/useTranslation';
 import { useCurrency } from '@/composables/useCurrency';
 
 const { t, currentLanguage } = useTranslation();
 const { convertPrice, currentCurrency } = useCurrency();
+const menuStore = useMenuStore();
 
-const restaurant = ref(restaurantData);
 const searchQuery = ref('');
 const activeTab = ref('all');
 const showFilterModal = ref(false);
 const selectedItem = ref<any>(null);
-const expandedCategories = ref(['burgers', 'pizza']);
+const expandedCategories = ref<string[]>([]);
 
 // Filter state
 const sortBy = ref('recommended');
 const maxPrice = ref(10000);
 
+// Favorites
+const favorites = ref<string[]>([]);
+
+onMounted(async () => {
+  favorites.value = JSON.parse(localStorage.getItem('favorites') || '[]');
+  await menuStore.loadAll();
+  
+  // Expand first two categories by default
+  if (menuStore.categories.length > 0) {
+    expandedCategories.value = menuStore.categories.slice(0, 2).map(cat => cat.slug);
+  }
+});
+
 // Food categories
 const foodCategories = ['burgers', 'pizza', 'sandwich', 'snacks', 'breakfast', 'lunch', 'fish', 'salad'];
 const drinkCategories = ['juice-shake'];
 
-// Favorites
-const favorites = ref<string[]>([]);
-
-onMounted(() => {
-  favorites.value = JSON.parse(localStorage.getItem('favorites') || '[]');
-});
-
 const filteredCategories = computed(() => {
-  let categories = restaurant.value.categories;
+  let categories = menuStore.categoriesWithItems;
   
   if (activeTab.value === 'food') {
-    categories = categories.filter(cat => foodCategories.includes(cat.id));
+    categories = categories.filter(cat => foodCategories.includes(cat.slug));
   } else if (activeTab.value === 'drinks') {
-    categories = categories.filter(cat => drinkCategories.includes(cat.id));
+    categories = categories.filter(cat => drinkCategories.includes(cat.slug));
   }
   
   return categories;
 });
 
 const getFilteredItems = (category: any) => {
-  let items = category.items;
+  let items = category.items || [];
   
   // Search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     items = items.filter((item: any) => 
       item.name.toLowerCase().includes(query) ||
-      item.nameAmharic.toLowerCase().includes(query) ||
+      item.name_amharic.toLowerCase().includes(query) ||
       (item.description && item.description.toLowerCase().includes(query))
     );
   }
@@ -372,12 +378,12 @@ const getFilteredItems = (category: any) => {
   return items;
 };
 
-const toggleCategory = (categoryId: string) => {
-  const index = expandedCategories.value.indexOf(categoryId);
+const toggleCategory = (categorySlug: string) => {
+  const index = expandedCategories.value.indexOf(categorySlug);
   if (index > -1) {
     expandedCategories.value.splice(index, 1);
   } else {
-    expandedCategories.value.push(categoryId);
+    expandedCategories.value.push(categorySlug);
   }
 };
 

@@ -29,11 +29,11 @@
 
 <script setup lang="ts">
 import { useApi } from '@/composables/useApi'
-import { exampleService } from '@/services/exampleService'
+import { menuService } from '@/services/menuService'
 
 // Using the composable with immediate loading
 const { data, loading, error, execute } = useApi(
-  exampleService.getItems,
+  menuService.getMenuItems,
   { immediate: true }
 )
 </script>

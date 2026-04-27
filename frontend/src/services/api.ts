@@ -10,14 +10,13 @@ const api = axios.create({
   withCredentials: true,
 })
 
-// Request interceptor
+// Request interceptor - Add auth token
 api.interceptors.request.use(
   (config) => {
-    // You can add auth tokens here if needed
-    // const token = localStorage.getItem('token')
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    const token = localStorage.getItem('admin_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {
@@ -25,7 +24,7 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor
+// Response interceptor - Handle auth errors
 api.interceptors.response.use(
   (response) => {
     return response
@@ -35,19 +34,20 @@ api.interceptors.response.use(
       // Handle specific error codes
       switch (error.response.status) {
         case 401:
-          // Handle unauthorized
-          console.error('Unauthorized access')
+          // Unauthorized - clear auth and redirect to login
+          localStorage.removeItem('admin_token')
+          localStorage.removeItem('admin_user')
+          if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+            window.location.href = '/admin/login'
+          }
           break
         case 403:
-          // Handle forbidden
           console.error('Forbidden access')
           break
         case 404:
-          // Handle not found
           console.error('Resource not found')
           break
         case 500:
-          // Handle server error
           console.error('Server error')
           break
         default:
