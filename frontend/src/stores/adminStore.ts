@@ -201,7 +201,7 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   async function loadAll() {
-    await Promise.all([
+    await Promise.allSettled([
       fetchCategories(),
       fetchMenuItems(),
       fetchSettings()

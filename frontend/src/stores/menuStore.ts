@@ -66,7 +66,7 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   async function loadAll() {
-    await Promise.all([
+    await Promise.allSettled([
       fetchCategories(),
       fetchMenuItems(),
       fetchSettings()
