@@ -1,100 +1,127 @@
 <template>
-  <div class="categories-view">
-    <div class="page-header">
-      <div>
-        <h1>Categories Management</h1>
-        <p class="subtitle">Organize your menu into categories for better navigation</p>
-      </div>
-      <button @click="showCreateModal = true" class="btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add Category
-      </button>
-    </div>
-
-    <div v-if="adminStore.loading" class="loading">
-      <div class="spinner"></div>
-      <p>Loading categories...</p>
-    </div>
-
-    <div v-else class="categories-container">
-      <div class="categories-grid">
-        <div v-for="category in adminStore.categories" :key="category.id" class="category-card">
-          <div class="category-header">
-            <div class="category-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-              </svg>
-            </div>
-            <div class="category-status">
-              <span :class="['status-badge', category.is_active ? 'active' : 'inactive']">
-                {{ category.is_active ? 'Active' : 'Inactive' }}
-              </span>
-            </div>
-          </div>
-          
-          <div class="category-content">
-            <h3>{{ category.name }}</h3>
-            <p class="amharic">{{ category.name_amharic }}</p>
-            <div class="category-meta">
-              <div class="meta-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 6v6l4 2"/>
-                </svg>
-                <span>{{ category.menu_items_count || 0 }} items</span>
-              </div>
-              <div class="meta-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                </svg>
-                <span>Order: {{ category.sort_order }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="category-actions">
-            <button @click="editCategory(category)" class="btn-icon edit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-            <button @click="deleteCategory(category.id)" class="btn-icon delete">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Empty State -->
-        <div v-if="!adminStore.categories.length" class="empty-state">
+  <div class="admin-container">
+    <!-- Sidebar (same as Dashboard) -->
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+      <div class="sidebar-header">
+        <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
+        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Yummy Cafe</h2>
+        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            <path d="M15 18l-6-6 6-6"/>
           </svg>
-          <h3>No categories yet</h3>
-          <p>Create your first category to start organizing your menu</p>
-          <button @click="showCreateModal = true" class="btn-primary">
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <router-link to="/admin/dashboard" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Dashboard</span>
+        </router-link>
+
+        <router-link to="/admin/categories" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Categories</span>
+        </router-link>
+
+        <router-link to="/admin/menu-items" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Menu Items</span>
+        </router-link>
+
+        <router-link to="/admin/feedback" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Feedback</span>
+          <span v-if="unreadFeedbackCount > 0 && !sidebarCollapsed" class="notification-badge">{{ unreadFeedbackCount }}</span>
+        </router-link>
+
+        <router-link to="/admin/settings" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Settings</span>
+        </router-link>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" @click="logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" :class="{ expanded: sidebarCollapsed }">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <h1 class="page-title">Categories</h1>
+        </div>
+        <div class="top-bar-right">
+          <button class="add-btn" @click="showAddModal = true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Create Category
+            Add Category
           </button>
         </div>
-      </div>
-    </div>
+      </header>
 
-    <!-- Create/Edit Modal -->
-    <div v-if="showCreateModal || editingCategory" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
+      <!-- Categories Content -->
+      <div class="dashboard-content">
+        <div class="categories-grid">
+          <div v-for="category in categories" :key="category.id" class="category-card">
+            <div class="category-card-header">
+              <div class="category-badge" :class="category.type.toLowerCase()">
+                {{ category.type }}
+              </div>
+              <div class="category-actions">
+                <button class="icon-btn" @click="editCategory(category)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="icon-btn delete" @click="deleteCategory(category)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="category-card-title">{{ category.name }}</h3>
+            <p class="category-card-subtitle">{{ category.nameAmharic }}</p>
+            <div class="category-card-footer">
+              <span class="item-count">{{ category.itemCount }} items</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div v-if="showAddModal || editingCategory" class="modal-overlay" @click="closeModal">
+      <div class="modal-card" @click.stop>
         <div class="modal-header">
-          <h2>{{ editingCategory ? 'Edit Category' : 'Create New Category' }}</h2>
-          <button @click="closeModal" class="close-btn">
+          <h2 class="modal-title">{{ editingCategory ? 'Edit Category' : 'Add New Category' }}</h2>
+          <button class="close-btn" @click="closeModal">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
@@ -102,48 +129,42 @@
           </button>
         </div>
 
-        <form @submit.prevent="saveCategory" class="modal-body">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Name (English) *</label>
-              <input v-model="formData.name" type="text" required placeholder="e.g., Burgers" />
-            </div>
-            <div class="form-group">
-              <label>Name (Amharic) *</label>
-              <input v-model="formData.name_amharic" type="text" required placeholder="e.g., በርገር" />
-            </div>
+        <form @submit.prevent="saveCategory" class="modal-form">
+          <div class="form-group">
+            <label class="form-label">Category Name (English)</label>
+            <input
+              v-model="formData.name"
+              type="text"
+              class="form-input"
+              placeholder="e.g., Burgers"
+              required
+            />
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>Slug</label>
-              <input v-model="formData.slug" type="text" placeholder="e.g., burgers (auto-generated if empty)" />
-              <small>URL-friendly identifier</small>
-            </div>
-            <div class="form-group">
-              <label>Sort Order</label>
-              <input v-model.number="formData.sort_order" type="number" placeholder="0" />
-              <small>Lower numbers appear first</small>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Category Name (Amharic)</label>
+            <input
+              v-model="formData.nameAmharic"
+              type="text"
+              class="form-input"
+              placeholder="e.g., በርገር"
+              required
+            />
           </div>
 
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input v-model="formData.is_active" type="checkbox" />
-              <span class="checkbox-text">
-                <strong>Active</strong>
-                <small>Category will be visible to customers</small>
-              </span>
-            </label>
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select v-model="formData.type" class="form-select" required>
+              <option value="">Select type</option>
+              <option value="Food">Food</option>
+              <option value="Drink">Drink</option>
+            </select>
           </div>
 
-          <div class="modal-footer">
-            <button type="button" @click="closeModal" class="btn-secondary">Cancel</button>
-            <button type="submit" class="btn-primary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              {{ editingCategory ? 'Update Category' : 'Create Category' }}
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn" @click="closeModal">Cancel</button>
+            <button type="submit" class="save-btn">
+              {{ editingCategory ? 'Update' : 'Add' }} Category
             </button>
           </div>
         </form>
@@ -153,534 +174,381 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
-import { useAdminStore } from '@/stores/adminStore'
-import type { Category } from '@/services/menuService'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useFeedbackCount } from '@/composables/useFeedbackCount';
 
-const adminStore = useAdminStore()
-const showCreateModal = ref(false)
-const editingCategory = ref<Category | null>(null)
+const router = useRouter();
+const { unreadCount: unreadFeedbackCount } = useFeedbackCount();
+const sidebarCollapsed = ref(false);
+const showAddModal = ref(false);
+const editingCategory = ref<any>(null);
 
-const formData = reactive({
+const formData = ref({
   name: '',
-  name_amharic: '',
-  slug: '',
-  sort_order: 0,
-  is_active: true,
-})
+  nameAmharic: '',
+  type: ''
+});
 
-onMounted(async () => {
-  await adminStore.fetchCategories()
-})
+const categories = ref([
+  { id: 1, name: 'Burgers', nameAmharic: 'በርገር', type: 'Food', itemCount: 9 },
+  { id: 2, name: 'Pizza', nameAmharic: 'ፒዛ', type: 'Food', itemCount: 8 },
+  { id: 3, name: 'Sandwich', nameAmharic: 'ሳንድዊች', type: 'Food', itemCount: 5 },
+  { id: 4, name: 'Snacks', nameAmharic: 'መክሰስ', type: 'Food', itemCount: 6 },
+  { id: 5, name: 'Breakfast', nameAmharic: 'ቁርስ', type: 'Food', itemCount: 10 },
+  { id: 6, name: 'Lunch', nameAmharic: 'ምሳ', type: 'Food', itemCount: 10 },
+  { id: 7, name: 'Fish', nameAmharic: 'ዓሳ', type: 'Food', itemCount: 4 },
+  { id: 8, name: 'Salad', nameAmharic: 'ሰላጣ', type: 'Food', itemCount: 5 },
+  { id: 9, name: 'Juice & Shake', nameAmharic: 'ጁስ እና ሼክ', type: 'Drink', itemCount: 8 },
+]);
 
-function editCategory(category: Category) {
-  editingCategory.value = category
-  formData.name = category.name
-  formData.name_amharic = category.name_amharic
-  formData.slug = category.slug
-  formData.sort_order = category.sort_order
-  formData.is_active = category.is_active
-}
+const editCategory = (category: any) => {
+  editingCategory.value = category;
+  formData.value = {
+    name: category.name,
+    nameAmharic: category.nameAmharic,
+    type: category.type
+  };
+};
 
-function closeModal() {
-  showCreateModal.value = false
-  editingCategory.value = null
-  resetForm()
-}
-
-function resetForm() {
-  formData.name = ''
-  formData.name_amharic = ''
-  formData.slug = ''
-  formData.sort_order = 0
-  formData.is_active = true
-}
-
-async function saveCategory() {
-  try {
-    if (editingCategory.value) {
-      await adminStore.updateCategory(editingCategory.value.id, formData)
-    } else {
-      await adminStore.createCategory(formData)
-    }
-    closeModal()
-  } catch (error) {
-    console.error('Failed to save category:', error)
-    alert('Failed to save category. Please try again.')
-  }
-}
-
-async function deleteCategory(id: number) {
-  if (confirm('Are you sure you want to delete this category? All menu items in this category will also be affected.')) {
-    try {
-      await adminStore.deleteCategory(id)
-    } catch (error) {
-      console.error('Failed to delete category:', error)
-      alert('Failed to delete category. Please try again.')
+const deleteCategory = (category: any) => {
+  if (confirm(`Are you sure you want to delete "${category.name}"?`)) {
+    const index = categories.value.findIndex(c => c.id === category.id);
+    if (index > -1) {
+      categories.value.splice(index, 1);
     }
   }
-}
+};
+
+const saveCategory = () => {
+  if (editingCategory.value) {
+    // Update existing category
+    const index = categories.value.findIndex(c => c.id === editingCategory.value.id);
+    if (index > -1) {
+      const existing = categories.value[index];
+      if (existing) {
+        categories.value[index] = {
+          id: existing.id,
+          name: formData.value.name,
+          nameAmharic: formData.value.nameAmharic,
+          type: formData.value.type,
+          itemCount: existing.itemCount
+        };
+      }
+    }
+  } else {
+    // Add new category
+    categories.value.push({
+      id: Date.now(),
+      name: formData.value.name,
+      nameAmharic: formData.value.nameAmharic,
+      type: formData.value.type,
+      itemCount: 0
+    });
+  }
+  closeModal();
+};
+
+const closeModal = () => {
+  showAddModal.value = false;
+  editingCategory.value = null;
+  formData.value = {
+    name: '',
+    nameAmharic: '',
+    type: ''
+  };
+};
+
+const logout = () => {
+  localStorage.removeItem('auth_token');
+  router.push('/admin/login');
+};
 </script>
 
+<style scoped src="./admin.css"></style>
 <style scoped>
-.categories-view {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Page Header */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 30px;
-}
-
-.page-header h1 {
-  margin: 0 0 8px 0;
-  font-size: 32px;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.subtitle {
-  margin: 0;
-  color: #6c757d;
-  font-size: 15px;
-}
-
-/* Loading */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 20px;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #42b983;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.loading p {
-  margin-top: 20px;
-  color: #6c757d;
-}
-
-/* Categories Grid */
-.categories-container {
-  width: 100%;
-}
-
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
 }
 
 .category-card {
-  background: white;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
-  position: relative;
 }
 
 .category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #3a3a3a;
+  transform: translateY(-2px);
 }
 
-.category-header {
+.category-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-.category-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.category-icon svg {
-  width: 28px;
-  height: 28px;
-  stroke-width: 2;
-}
-
-.category-status {
-  display: flex;
-  gap: 8px;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
+.category-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.status-badge.active {
-  background: #d4edda;
-  color: #155724;
+.category-badge.food {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
 }
 
-.status-badge.inactive {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.category-content h3 {
-  margin: 0 0 8px 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.amharic {
-  color: #6c757d;
-  margin: 0 0 16px 0;
-  font-size: 16px;
-}
-
-.category-meta {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 16px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #6c757d;
-  font-size: 14px;
-}
-
-.meta-item svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2;
+.category-badge.drink {
+  background: rgba(147, 197, 253, 0.1);
+  color: #93c5fd;
 }
 
 .category-actions {
   display: flex;
   gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
 }
 
-.btn-icon {
-  flex: 1;
-  padding: 12px;
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  background: #2a2a2a;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.btn-icon svg {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2;
-}
-
-.btn-icon.edit {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.btn-icon.edit:hover {
-  background: #ffc107;
-  color: white;
-}
-
-.btn-icon.delete {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.btn-icon.delete:hover {
-  background: #dc3545;
-  color: white;
-}
-
-/* Empty State */
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 80px 20px;
-}
-
-.empty-state svg {
-  width: 80px;
-  height: 80px;
-  stroke-width: 1.5;
-  color: #dee2e6;
-  margin-bottom: 24px;
-}
-
-.empty-state h3 {
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.empty-state p {
-  margin: 0 0 24px 0;
-  color: #6c757d;
-  font-size: 15px;
-}
-
-/* Buttons */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
+  color: #999;
   transition: all 0.3s;
 }
 
-.btn-primary:hover {
-  background: #359268;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.3);
+.icon-btn:hover {
+  background: #3a3a3a;
+  color: #fff;
 }
 
-.btn-primary svg {
+.icon-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.category-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.category-card-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0 0 16px 0;
+}
+
+.category-card-footer {
+  padding-top: 16px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.item-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #fbbf24;
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.add-btn:hover {
+  background: #fcd34d;
+}
+
+.add-btn svg {
   width: 18px;
   height: 18px;
   stroke-width: 2.5;
 }
 
-.btn-secondary {
-  padding: 12px 24px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-secondary:hover {
-  background: #5a6268;
-}
-
 /* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 20px;
-  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s;
 }
 
-.modal-content {
-  background: white;
-  border-radius: 16px;
+.modal-card {
   width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 32px;
+  animation: slideUp 0.3s;
 }
 
 .modal-header {
-  padding: 24px;
-  border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
 }
 
-.modal-header h2 {
-  margin: 0;
+.modal-title {
   font-size: 24px;
   font-weight: 700;
-  color: #2c3e50;
+  color: #fff;
+  margin: 0;
 }
 
 .close-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  background: #2a2a2a;
   border: none;
-  background: #f8f9fa;
   border-radius: 8px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6c757d;
+  color: #999;
   transition: all 0.3s;
 }
 
 .close-btn:hover {
-  background: #e9ecef;
-  color: #2c3e50;
+  background: #3a3a3a;
+  color: #fff;
 }
 
 .close-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   stroke-width: 2;
 }
 
-.modal-body {
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #2c3e50;
-  font-weight: 600;
+.form-label {
   font-size: 14px;
+  font-weight: 600;
+  color: #fff;
 }
 
-.form-group input {
+.form-input,
+.form-select {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 15px;
+  height: 48px;
+  padding: 0 16px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
   transition: all 0.3s;
 }
 
-.form-group input:focus {
+.form-input:focus,
+.form-select:focus {
+  border-color: #fbbf24;
+  background: #333;
   outline: none;
-  border-color: #42b983;
-  box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.1);
 }
 
-.form-group small {
-  display: block;
-  margin-top: 6px;
-  color: #6c757d;
-  font-size: 13px;
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px;
 }
 
-.checkbox-group {
-  background: #f8f9fa;
-  padding: 16px;
-  border-radius: 8px;
-}
-
-.checkbox-label {
+.modal-actions {
   display: flex;
-  align-items: flex-start;
   gap: 12px;
-  cursor: pointer;
+  margin-top: 8px;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  margin-top: 2px;
-  cursor: pointer;
-}
-
-.checkbox-text {
+.cancel-btn,
+.save-btn {
   flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
-.checkbox-text strong {
-  display: block;
-  color: #2c3e50;
-  font-size: 15px;
-  margin-bottom: 4px;
+.cancel-btn {
+  background: #2a2a2a;
+  color: #999;
 }
 
-.checkbox-text small {
-  color: #6c757d;
-  font-size: 13px;
+.cancel-btn:hover {
+  background: #3a3a3a;
+  color: #fff;
 }
 
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
+.save-btn {
+  background: #fbbf24;
+  color: #000;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .categories-grid {
-    grid-template-columns: 1fr;
+.save-btn:hover {
+  background: #fcd34d;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .page-header {
-    flex-direction: column;
-    gap: 16px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

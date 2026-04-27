@@ -7,6 +7,13 @@ const exchangeRates: Record<string, number> = {
   GBP: 0.014,
 };
 
+const currencySymbols: Record<string, string> = {
+  ETB: 'ETB',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+};
+
 const currentCurr = ref(localStorage.getItem('currency') || 'ETB');
 
 export function useCurrency() {
@@ -25,10 +32,13 @@ export function useCurrency() {
   };
 
   const currentCurrency = computed(() => currentCurr.value);
+  
+  const currencySymbol = computed(() => currencySymbols[currentCurr.value] || 'ETB');
 
   return {
     convertPrice,
     setCurrency,
     currentCurrency,
+    currencySymbol,
   };
 }

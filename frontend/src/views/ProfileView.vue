@@ -18,7 +18,7 @@
             <span class="preference-label">{{ t('darkMode') }}</span>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" v-model="preferences.darkMode" checked disabled>
+            <input type="checkbox" v-model="preferences.darkMode" @change="toggleDarkMode">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -149,12 +149,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useTranslation } from '@/composables/useTranslation';
 import { useCurrency } from '@/composables/useCurrency';
+import { useTheme } from '@/composables/useTheme';
 
 const { t, setLanguage, currentLanguage } = useTranslation();
 const { setCurrency, currentCurrency } = useCurrency();
+const { isDarkMode, toggleTheme } = useTheme();
 
 const preferences = ref({
   darkMode: true,
@@ -175,6 +177,10 @@ const currencies = [
   { code: 'GBP', name: 'British Pound' },
 ];
 
+onMounted(() => {
+  preferences.value.darkMode = isDarkMode.value;
+});
+
 const selectLanguage = (code: string) => {
   setLanguage(code);
   showLanguageModal.value = false;
@@ -186,26 +192,32 @@ const selectCurrency = (code: string) => {
   showCurrencyModal.value = false;
   window.location.reload(); // Reload to apply currency
 };
+
+const toggleDarkMode = () => {
+  toggleTheme();
+  preferences.value.darkMode = isDarkMode.value;
+};
 </script>
 
 <style scoped>
 .app-container {
   min-height: 100vh;
-  background: #000;
-  color: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding-bottom: 80px;
+  transition: all 0.3s ease;
 }
 
 .page-header {
   padding: 60px 20px 20px;
-  background: #000;
+  background: var(--bg-primary);
 }
 
 .page-title {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
-  color: #999;
+  color: var(--text-tertiary);
   letter-spacing: 1px;
 }
 
@@ -215,10 +227,11 @@ const selectCurrency = (code: string) => {
 
 .preferences-section,
 .about-section {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 20px;
+  border: 1px solid var(--bg-tertiary);
 }
 
 .preference-item,
@@ -230,8 +243,8 @@ const selectCurrency = (code: string) => {
   padding: 20px;
   background: none;
   border: none;
-  border-bottom: 1px solid #2a2a2a;
-  color: #fff;
+  border-bottom: 1px solid var(--bg-tertiary);
+  color: var(--text-primary);
   text-align: left;
 }
 
@@ -252,7 +265,7 @@ const selectCurrency = (code: string) => {
   width: 24px;
   height: 24px;
   stroke-width: 2;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .preference-label,
@@ -269,14 +282,14 @@ const selectCurrency = (code: string) => {
 
 .preference-value {
   font-size: 14px;
-  color: #999;
+  color: var(--text-tertiary);
 }
 
 .chevron-icon {
   width: 20px;
   height: 20px;
   stroke-width: 2;
-  color: #666;
+  color: var(--text-quaternary);
 }
 
 /* Toggle Switch */
@@ -297,7 +310,7 @@ const selectCurrency = (code: string) => {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 32px;
   transition: 0.3s;
 }
@@ -309,7 +322,7 @@ const selectCurrency = (code: string) => {
   width: 24px;
   left: 4px;
   bottom: 4px;
-  background: #fff;
+  background: var(--text-primary);
   border-radius: 50%;
   transition: 0.3s;
 }
@@ -342,7 +355,7 @@ input:checked + .toggle-slider:before {
 .modal-content {
   width: 100%;
   max-width: 480px;
-  background: #1a1a1a;
+  background: var(--bg-secondary);
   border-radius: 24px 24px 0 0;
   padding: 24px;
   animation: slideUp 0.3s;
@@ -361,7 +374,7 @@ input:checked + .toggle-slider:before {
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 20px 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .modal-options {
@@ -376,17 +389,18 @@ input:checked + .toggle-slider:before {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border: none;
   border-radius: 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 16px;
   text-align: left;
   transition: all 0.2s;
 }
 
 .modal-option.active {
-  background: #333;
+  background: var(--accent);
+  color: #000;
 }
 
 .check-icon {
@@ -394,6 +408,10 @@ input:checked + .toggle-slider:before {
   height: 20px;
   stroke-width: 3;
   color: #4ade80;
+}
+
+.modal-option.active .check-icon {
+  color: #000;
 }
 
 /* Bottom Navigation */
@@ -405,7 +423,7 @@ input:checked + .toggle-slider:before {
   max-width: 480px;
   width: 100%;
   height: 70px;
-  background: #fff;
+  background: var(--nav-bg);
   border-radius: 24px 24px 0 0;
   display: flex;
   justify-content: space-around;
@@ -424,14 +442,14 @@ input:checked + .toggle-slider:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--nav-text);
   transition: all 0.3s;
   text-decoration: none;
 }
 
 .nav-btn.active {
-  background: #000;
-  color: #fff;
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
 }
 
 .nav-btn svg {

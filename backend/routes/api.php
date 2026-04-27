@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\RestaurantSettingController;
 use Illuminate\Http\Request;
@@ -35,6 +36,9 @@ Route::prefix('public')->group(function () {
     Route::get('/menu-items', [MenuItemController::class, 'index']);
     Route::get('/menu-items/{id}', [MenuItemController::class, 'show']);
     Route::get('/settings', [RestaurantSettingController::class, 'index']);
+    
+    // Feedback submission (public - no auth required)
+    Route::post('/feedback', [FeedbackController::class, 'store']);
 });
 
 // Admin routes (protected with auth)
@@ -61,4 +65,13 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/settings', [RestaurantSettingController::class, 'index']);
     Route::put('/settings', [RestaurantSettingController::class, 'update']);
     Route::post('/settings/upload-logo', [RestaurantSettingController::class, 'uploadLogo']);
+
+    // Feedback Management
+    Route::get('/feedback', [FeedbackController::class, 'index']);
+    Route::get('/feedback/statistics', [FeedbackController::class, 'statistics']);
+    Route::get('/feedback/{id}', [FeedbackController::class, 'show']);
+    Route::put('/feedback/{id}', [FeedbackController::class, 'update']);
+    Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy']);
+    Route::post('/feedback/{id}/mark-read', [FeedbackController::class, 'markAsRead']);
+    Route::post('/feedback/{id}/mark-resolved', [FeedbackController::class, 'markAsResolved']);
 });

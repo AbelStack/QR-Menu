@@ -24,15 +24,10 @@
           <div class="item-image-container">
             <img 
               v-if="item.image"
-              :src="item.image" 
+              :src="item.image.startsWith('http') ? item.image : `http://localhost:8000${item.image}`" 
               :alt="item.name"
               class="item-image"
             />
-            <button class="add-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M12 5v14M5 12h14"/>
-              </svg>
-            </button>
             <button 
               class="favorite-btn active"
               @click="removeFavorite(item)"
@@ -44,7 +39,7 @@
           </div>
           <div class="item-info">
             <h4 class="item-name">{{ item.name }}</h4>
-            <p class="item-price">{{ item.price }} ETB</p>
+            <p class="item-price">{{ currencySymbol }} {{ convertPrice(item.price) }}</p>
           </div>
         </div>
       </div>
@@ -84,8 +79,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useMenuStore } from '@/stores/menuStore';
+import { useCurrency } from '@/composables/useCurrency';
 
 const menuStore = useMenuStore();
+const { convertPrice, currencySymbol } = useCurrency();
 const favoriteItems = ref<any[]>([]);
 
 onMounted(async () => {
@@ -120,21 +117,21 @@ const removeFavorite = (item: any) => {
 <style scoped>
 .app-container {
   min-height: 100vh;
-  background: #000;
-  color: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding-bottom: 80px;
 }
 
 .page-header {
   padding: 60px 20px 20px;
-  background: #000;
+  background: var(--bg-primary);
 }
 
 .page-title {
   font-size: 32px;
   font-weight: 700;
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .page-content {
@@ -162,13 +159,13 @@ const removeFavorite = (item: any) => {
 .empty-text {
   font-size: 20px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .empty-subtext {
   font-size: 14px;
-  color: #666;
+  color: var(--text-quaternary);
   margin: 0;
 }
 
@@ -198,27 +195,6 @@ const removeFavorite = (item: any) => {
   object-fit: cover;
 }
 
-.add-btn {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 32px;
-  height: 32px;
-  background: rgba(255,255,255,0.9);
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-}
-
-.add-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 3;
-}
-
 .favorite-btn {
   position: absolute;
   top: 8px;
@@ -231,7 +207,7 @@ const removeFavorite = (item: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--text-primary);
   backdrop-filter: blur(10px);
 }
 
@@ -253,14 +229,14 @@ const removeFavorite = (item: any) => {
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 4px 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .item-price {
   font-size: 14px;
   font-weight: 700;
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 /* Bottom Navigation */
@@ -272,7 +248,7 @@ const removeFavorite = (item: any) => {
   max-width: 480px;
   width: 100%;
   height: 70px;
-  background: #fff;
+  background: var(--nav-bg);
   border-radius: 24px 24px 0 0;
   display: flex;
   justify-content: space-around;
@@ -291,14 +267,14 @@ const removeFavorite = (item: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--nav-text);
   transition: all 0.3s;
   text-decoration: none;
 }
 
 .nav-btn.active {
-  background: #000;
-  color: #fff;
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
 }
 
 .nav-btn svg {

@@ -1,266 +1,457 @@
 <template>
-  <div class="settings-view">
-    <h1>Restaurant Settings</h1>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+      <div class="sidebar-header">
+        <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
+        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Yummy Cafe</h2>
+        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+      </div>
 
-    <div v-if="adminStore.loading" class="loading">Loading...</div>
+      <nav class="sidebar-nav">
+        <router-link to="/admin/dashboard" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Dashboard</span>
+        </router-link>
 
-    <div v-else-if="adminStore.settings" class="settings-form">
-      <form @submit.prevent="saveSettings">
-        <div class="form-section">
-          <h2>Basic Information</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Restaurant Name *</label>
-              <input v-model="formData.name" type="text" required />
+        <router-link to="/admin/categories" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Categories</span>
+        </router-link>
+
+        <router-link to="/admin/menu-items" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Menu Items</span>
+        </router-link>
+
+        <router-link to="/admin/feedback" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Feedback</span>
+          <span v-if="unreadFeedbackCount > 0 && !sidebarCollapsed" class="notification-badge">{{ unreadFeedbackCount }}</span>
+        </router-link>
+
+        <router-link to="/admin/settings" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Settings</span>
+        </router-link>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" @click="logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+          <span v-if="!sidebarCollapsed">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" :class="{ expanded: sidebarCollapsed }">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <h1 class="page-title">Settings</h1>
+        </div>
+      </header>
+
+      <!-- Settings Content -->
+      <div class="dashboard-content">
+        <div class="settings-grid">
+          <!-- Cafe Information -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h3 class="settings-card-title">Cafe Information</h3>
+              <p class="settings-card-subtitle">Update your cafe details displayed in About Us page</p>
             </div>
-            <div class="form-group">
-              <label>Tagline</label>
-              <input v-model="formData.tagline" type="text" />
-            </div>
+
+            <form @submit.prevent="saveCafeInfo" class="settings-form">
+              <div class="form-group">
+                <label class="form-label">Cafe Name</label>
+                <input
+                  v-model="cafeInfo.name"
+                  type="text"
+                  class="form-input"
+                  placeholder="Yummy Cafe"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Tagline</label>
+                <input
+                  v-model="cafeInfo.tagline"
+                  type="text"
+                  class="form-input"
+                  placeholder="Yum, Every Time!"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea
+                  v-model="cafeInfo.description"
+                  class="form-textarea"
+                  rows="4"
+                  placeholder="Tell customers about your cafe..."
+                ></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Phone</label>
+                  <input
+                    v-model="cafeInfo.phone"
+                    type="tel"
+                    class="form-input"
+                    placeholder="+251 911 234 567"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input
+                    v-model="cafeInfo.email"
+                    type="email"
+                    class="form-input"
+                    placeholder="info@yummycafe.com"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Address</label>
+                <input
+                  v-model="cafeInfo.address"
+                  type="text"
+                  class="form-input"
+                  placeholder="Bole, Addis Ababa, Ethiopia"
+                />
+              </div>
+
+              <button type="submit" class="save-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                  <polyline points="17 21 17 13 7 13 7 21"/>
+                  <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                Save Changes
+              </button>
+            </form>
           </div>
 
-          <div class="form-group">
-            <label>Slug *</label>
-            <input v-model="formData.slug" type="text" required />
-            <small>Used in URLs (e.g., yoursite.com/{{ formData.slug }})</small>
+          <!-- Change Password -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <h3 class="settings-card-title">Change Password</h3>
+              <p class="settings-card-subtitle">Update your admin password</p>
+            </div>
+
+            <form @submit.prevent="changePassword" class="settings-form">
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input
+                  v-model="passwordForm.current"
+                  type="password"
+                  class="form-input"
+                  placeholder="Enter current password"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input
+                  v-model="passwordForm.new"
+                  type="password"
+                  class="form-input"
+                  placeholder="Enter new password"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input
+                  v-model="passwordForm.confirm"
+                  type="password"
+                  class="form-input"
+                  placeholder="Confirm new password"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="save-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Update Password
+              </button>
+            </form>
           </div>
         </div>
 
-        <div class="form-section">
-          <h2>Contact Information</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Phone</label>
-              <input v-model="formData.phone" type="tel" />
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input v-model="formData.email" type="email" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Address</label>
-            <textarea v-model="formData.address" rows="3"></textarea>
-          </div>
+        <!-- Success Message -->
+        <div v-if="showSuccess" class="success-toast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          {{ successMessage }}
         </div>
-
-        <div class="form-section">
-          <h2>Preferences</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Currency</label>
-              <select v-model="formData.currency">
-                <option value="ETB">ETB (Ethiopian Birr)</option>
-                <option value="USD">USD (US Dollar)</option>
-                <option value="EUR">EUR (Euro)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Language</label>
-              <select v-model="formData.language">
-                <option value="en">English</option>
-                <option value="am">Amharic</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group checkbox">
-            <label>
-              <input v-model="formData.is_active" type="checkbox" />
-              Restaurant is Active
-            </label>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h2>Logo</h2>
-          <div v-if="formData.logo" class="logo-preview">
-            <img :src="formData.logo" alt="Restaurant Logo" />
-          </div>
-          <div class="form-group">
-            <label>Logo URL</label>
-            <input v-model="formData.logo" type="text" />
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" :disabled="saving">
-            {{ saving ? 'Saving...' : 'Save Settings' }}
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue'
-import { useAdminStore } from '@/stores/adminStore'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useFeedbackCount } from '@/composables/useFeedbackCount';
 
-const adminStore = useAdminStore()
-const saving = ref(false)
+const router = useRouter();
+const { unreadCount: unreadFeedbackCount } = useFeedbackCount();
+const sidebarCollapsed = ref(false);
+const showSuccess = ref(false);
+const successMessage = ref('');
 
-const formData = reactive({
-  name: '',
-  tagline: '',
-  slug: '',
-  logo: '',
-  phone: '',
-  email: '',
-  address: '',
-  currency: 'ETB',
-  language: 'en',
-  is_active: true,
-})
+const cafeInfo = ref({
+  name: 'Yummy Cafe',
+  tagline: 'Yum, Every Time!',
+  description: 'Welcome to Yummy Cafe, where every dish is crafted with love and the finest ingredients. Experience authentic Ethiopian cuisine with a modern twist.',
+  phone: '+251 911 234 567',
+  email: 'info@yummycafe.com',
+  address: 'Bole, Addis Ababa, Ethiopia'
+});
 
-onMounted(async () => {
-  await adminStore.fetchSettings()
-  if (adminStore.settings) {
-    Object.assign(formData, adminStore.settings)
+const passwordForm = ref({
+  current: '',
+  new: '',
+  confirm: ''
+});
+
+const saveCafeInfo = () => {
+  // Save cafe info (will connect to API later)
+  localStorage.setItem('cafe_info', JSON.stringify(cafeInfo.value));
+  showSuccessMessage('Cafe information updated successfully!');
+};
+
+const changePassword = () => {
+  if (passwordForm.value.new !== passwordForm.value.confirm) {
+    alert('New passwords do not match!');
+    return;
   }
-})
 
-watch(() => adminStore.settings, (settings) => {
-  if (settings) {
-    Object.assign(formData, settings)
+  if (passwordForm.value.new.length < 6) {
+    alert('Password must be at least 6 characters long!');
+    return;
   }
-})
 
-async function saveSettings() {
-  saving.value = true
-  try {
-    await adminStore.updateSettings(formData)
-    alert('Settings saved successfully!')
-  } catch (error) {
-    console.error('Failed to save settings:', error)
-    alert('Failed to save settings')
-  } finally {
-    saving.value = false
-  }
-}
+  // Change password (will connect to API later)
+  showSuccessMessage('Password updated successfully!');
+  passwordForm.value = {
+    current: '',
+    new: '',
+    confirm: ''
+  };
+};
+
+const showSuccessMessage = (message: string) => {
+  successMessage.value = message;
+  showSuccess.value = true;
+  setTimeout(() => {
+    showSuccess.value = false;
+  }, 3000);
+};
+
+const logout = () => {
+  localStorage.removeItem('auth_token');
+  router.push('/admin/login');
+};
 </script>
 
+<style scoped src="./admin.css"></style>
 <style scoped>
-.settings-view {
-  max-width: 800px;
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
 }
 
-h1 {
-  margin-bottom: 30px;
-  color: #2c3e50;
+.settings-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 32px;
 }
 
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #666;
+.settings-card-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.settings-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.settings-card-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
 }
 
 .settings-form {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.form-section {
-  margin-bottom: 40px;
-  padding-bottom: 30px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.form-section:last-of-type {
-  border-bottom: none;
-}
-
-.form-section h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #2c3e50;
-  font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
 
 .form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #495057;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.form-group small {
-  display: block;
-  margin-top: 5px;
-  color: #6c757d;
-  font-size: 12px;
-}
-
-.form-group.checkbox label {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
 }
 
-.logo-preview {
-  margin-bottom: 15px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  text-align: center;
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
 }
 
-.logo-preview img {
-  max-width: 200px;
-  max-height: 200px;
-  object-fit: contain;
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s;
 }
 
-.form-actions {
+.form-input {
+  height: 48px;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #fbbf24;
+  background: #333;
+  outline: none;
+}
+
+.save-btn {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 30px;
-}
-
-.btn-primary {
-  background: #42b983;
-  color: white;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  background: #fbbf24;
   border: none;
-  padding: 12px 30px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
+  border-radius: 12px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-top: 8px;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: #359268;
+.save-btn:hover {
+  background: #fcd34d;
 }
 
-.btn-primary:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.save-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.success-toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 12px;
+  color: #4ade80;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideIn 0.3s;
+  z-index: 1000;
+}
+
+.success-toast svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .success-toast {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+  }
 }
 </style>

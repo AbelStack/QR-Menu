@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 
 const route = useRoute()
 const isAdminRoute = computed(() => route.path.startsWith('/admin'))
+const { initTheme } = useTheme()
+
+onMounted(() => {
+  initTheme()
+})
 </script>
 
 <template>
@@ -18,10 +24,11 @@ const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 .app-wrapper {
   max-width: 480px;
   margin: 0 auto;
-  background: #000;
+  background: var(--bg-primary);
   min-height: 100vh;
   position: relative;
   box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  transition: background-color 0.3s ease;
 }
 
 /* Admin full-width desktop style */
@@ -34,7 +41,7 @@ const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 
 @media (min-width: 481px) {
   body {
-    background: #0a0a0a;
+    background: var(--bg-primary);
   }
   
   body:has(.admin-mode) {

@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import api from '@/services/api';
 
 const feedback = ref({
   category: '',
@@ -118,47 +119,55 @@ const isSubmitting = ref(false);
 const showSuccess = ref(false);
 
 const submitFeedback = async () => {
+  if (!feedback.value.category || !feedback.value.rating || !feedback.value.message) {
+    alert('Please fill in all required fields');
+    return;
+  }
+
   isSubmitting.value = true;
   
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Save to localStorage (in real app, send to API)
-  const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-  feedbacks.push({
-    ...feedback.value,
-    timestamp: new Date().toISOString()
-  });
-  localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-  
-  isSubmitting.value = false;
-  showSuccess.value = true;
-  
-  // Reset form
-  feedback.value = {
-    category: '',
-    rating: 0,
-    message: ''
-  };
-  
-  // Hide success message after 3 seconds
-  setTimeout(() => {
-    showSuccess.value = false;
-  }, 3000);
+  try {
+    // Send to backend API
+    await api.post('/public/feedback', {
+      category: feedback.value.category,
+      rating: feedback.value.rating,
+      message: feedback.value.message
+    });
+    
+    // Show success message
+    showSuccess.value = true;
+    
+    // Reset form
+    feedback.value = {
+      category: '',
+      rating: 0,
+      message: ''
+    };
+    
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+      showSuccess.value = false;
+    }, 3000);
+  } catch (error: any) {
+    console.error('Failed to submit feedback:', error);
+    alert(error.response?.data?.message || 'Failed to submit feedback. Please try again.');
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 </script>
 
 <style scoped>
 .app-container {
   min-height: 100vh;
-  background: #000;
-  color: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding-bottom: 80px;
 }
 
 .page-header {
   padding: 60px 20px 30px;
-  background: #000;
+  background: var(--bg-primary);
   text-align: center;
 }
 
@@ -166,7 +175,7 @@ const submitFeedback = async () => {
   width: 80px;
   height: 80px;
   margin: 0 auto 20px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -177,19 +186,19 @@ const submitFeedback = async () => {
   width: 40px;
   height: 40px;
   stroke-width: 2;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .page-subtitle {
   font-size: 14px;
-  color: #666;
+  color: var(--text-quaternary);
   margin: 0;
 }
 
@@ -212,7 +221,7 @@ const submitFeedback = async () => {
 .form-label {
   font-size: 12px;
   font-weight: 600;
-  color: #999;
+  color: var(--text-tertiary);
   letter-spacing: 0.5px;
 }
 
@@ -220,10 +229,10 @@ const submitFeedback = async () => {
   width: 100%;
   height: 56px;
   padding: 0 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border: none;
   border-radius: 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 14px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -233,8 +242,8 @@ const submitFeedback = async () => {
 }
 
 .form-select option {
-  background: #2a2a2a;
-  color: #fff;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .rating-stars {
@@ -265,33 +274,33 @@ const submitFeedback = async () => {
 .form-textarea {
   width: 100%;
   padding: 16px;
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border: none;
   border-radius: 12px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 14px;
   resize: vertical;
   min-height: 120px;
 }
 
 .form-textarea::placeholder {
-  color: #666;
+  color: var(--text-quaternary);
 }
 
 .submit-btn {
   width: 100%;
   height: 56px;
-  background: #999;
+  background: var(--text-tertiary);
   border: none;
   border-radius: 12px;
-  color: #000;
+  color: var(--bg-primary);
   font-size: 16px;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .submit-btn:not(:disabled):hover {
-  background: #bbb;
+  background: var(--text-secondary);
 }
 
 .submit-btn:disabled {
@@ -304,7 +313,7 @@ const submitFeedback = async () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   padding: 32px;
   border-radius: 16px;
   text-align: center;
@@ -335,7 +344,7 @@ const submitFeedback = async () => {
 .success-message p {
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -348,7 +357,7 @@ const submitFeedback = async () => {
   max-width: 480px;
   width: 100%;
   height: 70px;
-  background: #fff;
+  background: var(--nav-bg);
   border-radius: 24px 24px 0 0;
   display: flex;
   justify-content: space-around;
@@ -367,14 +376,14 @@ const submitFeedback = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--nav-text);
   transition: all 0.3s;
   text-decoration: none;
 }
 
 .nav-btn.active {
-  background: #000;
-  color: #fff;
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
 }
 
 .nav-btn svg {

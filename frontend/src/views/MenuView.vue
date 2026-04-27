@@ -17,7 +17,7 @@
               alt="Yummy Cafe Logo"
               class="brand-logo"
             />
-            <span class="brand-name">Abel Cafe<br/> አቤል ካፌ</span>
+            <span class="brand-name">Yummy Cafe<br/> ያሚ ካፌ</span>
           </div>
           <button class="lang-btn" @click="$router.push('/profile')">
             {{ currentLanguage }}
@@ -125,7 +125,7 @@
                 <div class="item-image-container">
                   <img 
                     v-if="item.image"
-                    :src="item.image" 
+                    :src="item.image.startsWith('http') ? item.image : `http://localhost:8000${item.image}`" 
                     :alt="item.name"
                     class="item-image"
                   />
@@ -141,7 +141,7 @@
                 </div>
                 <div class="item-info">
                   <h4 class="item-name">{{ item.name }}</h4>
-                  <p class="item-price">{{ convertPrice(item.price) }} {{ currentCurrency }}</p>
+                  <p class="item-price">{{ currencySymbol }} {{ convertPrice(item.price) }}</p>
                 </div>
               </div>
             </div>
@@ -188,7 +188,7 @@
           <div class="filter-section">
             <div class="price-header">
               <label class="filter-label">{{ t('maxPrice') }}</label>
-              <span class="price-value">{{ maxPrice }} {{ currentCurrency }}</span>
+              <span class="price-value">{{ currencySymbol }} {{ maxPrice }}</span>
             </div>
             <input 
               type="range" 
@@ -220,7 +220,7 @@
         <div class="detail-image-container">
           <img 
             v-if="selectedItem.image"
-            :src="selectedItem.image" 
+            :src="selectedItem.image.startsWith('http') ? selectedItem.image : `http://localhost:8000${selectedItem.image}`" 
             :alt="selectedItem.name"
             class="detail-image"
           />
@@ -244,7 +244,7 @@
           </div>
 
           <h2 class="detail-name">{{ selectedItem.name }}</h2>
-          <p class="detail-price">{{ convertPrice(selectedItem.price) }} {{ currentCurrency }}</p>
+          <p class="detail-price">{{ currencySymbol }} {{ convertPrice(selectedItem.price) }}</p>
           <p class="detail-description">{{ selectedItem.description || selectedItem.name_amharic }}</p>
 
           <div v-if="selectedItem.tags && selectedItem.tags.length" class="detail-tags">
@@ -310,7 +310,7 @@ import { useTranslation } from '@/composables/useTranslation';
 import { useCurrency } from '@/composables/useCurrency';
 
 const { t, currentLanguage } = useTranslation();
-const { convertPrice, currentCurrency } = useCurrency();
+const { convertPrice, currencySymbol } = useCurrency();
 const menuStore = useMenuStore();
 
 const searchQuery = ref('');
