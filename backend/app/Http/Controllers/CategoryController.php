@@ -10,10 +10,27 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with('menuItems')
+        $categories = Category::with(['menuItems' => function($query) {
+                $query->where('is_available', true)->orderBy('sort_order');
+            }])
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
+
+        // Transform the response to match frontend expectations
+        $categories = $categories->map(function($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'name_amharic' => $category->name_amharic,
+                'slug' => $category->slug,
+                'sort_order' => $category->sort_order,
+                'is_active' => $category->is_active,
+                'menu_items' => $category->menuItems,
+                'created_at' => $category->created_at,
+                'updated_at' => $category->updated_at,
+            ];
+        });
 
         return response()->json(['data' => $categories]);
     }
