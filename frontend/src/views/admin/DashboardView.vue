@@ -90,8 +90,14 @@
 
       <!-- Dashboard Content -->
       <div class="dashboard-content">
+        <!-- Loading State -->
+        <div v-if="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading dashboard...</p>
+        </div>
+
         <!-- Stats Cards -->
-        <div class="stats-grid">
+        <div v-else class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon" style="background: rgba(251, 191, 36, 0.1);">
               <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24">
@@ -201,31 +207,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 
 const router = useRouter();
 const sidebarCollapsed = ref(false);
 const unreadFeedbackCount = ref(0);
+const categories = ref<any[]>([]);
+const loading = ref(false);
 
-const stats = ref({
-  totalCategories: 9,
-  foodCategories: 8,
-  drinkCategories: 1
+const stats = computed(() => {
+  const totalCategories = categories.value.length;
+  const drinkCategories = categories.value.filter(cat => cat.type === 'Drink').length;
+  const foodCategories = totalCategories - drinkCategories;
+  
+  return {
+    totalCategories,
+    foodCategories,
+    drinkCategories
+  };
 });
 
-const categories = ref([
-  { id: 1, name: 'Burgers', type: 'Food', itemCount: 9 },
-  { id: 2, name: 'Pizza', type: 'Food', itemCount: 8 },
-  { id: 3, name: 'Sandwich', type: 'Food', itemCount: 5 },
-  { id: 4, name: 'Snacks', type: 'Food', itemCount: 6 },
-  { id: 5, name: 'Breakfast', type: 'Food', itemCount: 10 },
-  { id: 6, name: 'Lunch', type: 'Food', itemCount: 10 },
-  { id: 7, name: 'Fish', type: 'Food', itemCount: 4 },
-  { id: 8, name: 'Salad', type: 'Food', itemCount: 5 },
-  { id: 9, name: 'Juice & Shake', type: 'Drink', itemCount: 8 },
-]);
+const loadCategories = async () => {
+  loading.value = true;
+  try {
+    const response = await api.get('/admin/categories');
+    categories.value = response.data.data.map((cat: any) => ({
+      id: cat.id,
+      name: cat.name,
+      nameAmharic: cat.name_amharic || '',
+      slug: cat.slug,
+      type: cat.slug === 'juice-shake' ? 'Drink' : 'Food',
+      itemCount: cat.menu_items_count || 0
+    }));
+  } catch (err) {
+    console.error('Failed to load categories:', err);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const loadFeedbackCount = async () => {
   try {
@@ -236,10 +257,15 @@ const loadFeedbackCount = async () => {
   }
 };
 
-onMounted(() => {
-  loadFeedbackCount();
-  // Refresh count every 30 seconds
-  setInterval(loadFeedbackCount, 30000);
+onMounted(async () => {
+  await loadCategories();
+  await loadFeedbackCount();
+  
+  // Refresh counts every 30 seconds
+  setInterval(() => {
+    loadCategories();
+    loadFeedbackCount();
+  }, 30000);
 });
 
 const logout = () => {
