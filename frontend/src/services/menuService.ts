@@ -7,6 +7,8 @@ export interface MenuItem {
   name_amharic: string
   description?: string
   description_amharic?: string
+  ingredients?: string
+  ingredients_amharic?: string
   price: number | null
   image?: string
   tags?: string[]
