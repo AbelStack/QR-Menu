@@ -462,7 +462,18 @@ const getImageUrl = (imagePath: string) => {
 };
 
 const getCategoryType = (item: any) => {
-  // Find the category this item belongs to
+  // First try to find by category_id
+  if (item.category_id) {
+    const category = menuStore.categories.find((cat: any) => cat.id === item.category_id);
+    if (category && drinkCategories.includes(category.slug)) {
+      return t('drinks');
+    }
+    if (category) {
+      return t('food');
+    }
+  }
+  
+  // Fallback: search through all categories
   const category = menuStore.categories.find((cat: any) => 
     cat.items?.some((i: any) => i.id === item.id || i.name === item.name)
   );

@@ -237,7 +237,7 @@ const deleteCategory = async (category: any) => {
   }
 
   try {
-    await api.delete(`/categories/${category.id}`);
+    await api.delete(`/admin/categories/${category.id}`);
     await loadCategories();
   } catch (err: any) {
     alert(err.response?.data?.message || 'Failed to delete category');
@@ -258,10 +258,10 @@ const saveCategory = async () => {
 
     if (editingCategory.value) {
       // Update existing category
-      await api.put(`/categories/${editingCategory.value.id}`, categoryData);
+      await api.put(`/admin/categories/${editingCategory.value.id}`, categoryData);
     } else {
       // Add new category
-      await api.post('/categories', categoryData);
+      await api.post('/admin/categories', categoryData);
     }
     
     await loadCategories();
