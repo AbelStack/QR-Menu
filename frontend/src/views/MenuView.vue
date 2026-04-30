@@ -3,11 +3,18 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-overlay"></div>
-      <img 
-        src="/hero.jpg" 
-        alt="Hero"
-        class="hero-image"
-      />
+      
+      <!-- Image Slider -->
+      <div class="hero-slider">
+        <img 
+          v-for="(image, index) in heroImages" 
+          :key="index"
+          :src="image" 
+          :alt="`Hero ${index + 1}`"
+          class="hero-image"
+          :class="{ active: currentSlide === index }"
+        />
+      </div>
       
       <div class="hero-content">
         <div class="hero-header">
@@ -326,6 +333,11 @@ const maxPrice = ref(10000);
 // Favorites
 const favorites = ref<string[]>([]);
 
+// Hero Image Slider
+const heroImages = ['/hero.jpg', '/pizza.jpg', '/juice.jpg', '/shwarma.jpg', '/chicken.jpg'];
+const currentSlide = ref(0);
+let slideInterval: number;
+
 onMounted(async () => {
   favorites.value = JSON.parse(localStorage.getItem('favorites') || '[]');
   await menuStore.loadAll();
@@ -333,6 +345,19 @@ onMounted(async () => {
   // Expand first two categories by default
   if (menuStore.categories.length > 0) {
     expandedCategories.value = menuStore.categories.slice(0, 2).map(cat => cat.slug);
+  }
+  
+  // Start hero image slider
+  slideInterval = window.setInterval(() => {
+    currentSlide.value = (currentSlide.value + 1) % heroImages.length;
+  }, 3000); // Change image every 3 seconds
+});
+
+// Cleanup interval on unmount
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  if (slideInterval) {
+    clearInterval(slideInterval);
   }
 });
 
