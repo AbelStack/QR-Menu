@@ -225,23 +225,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFeedbackCount } from '@/composables/useFeedbackCount';
+import api from '@/services/api';
 
 const router = useRouter();
 const { unreadCount: unreadFeedbackCount } = useFeedbackCount();
 const sidebarCollapsed = ref(false);
 const showSuccess = ref(false);
 const successMessage = ref('');
+const loading = ref(false);
+const saving = ref(false);
 
 const cafeInfo = ref({
-  name: 'Yummy Cafe',
-  tagline: 'Yum, Every Time!',
-  description: 'Welcome to Yummy Cafe, where every dish is crafted with love and the finest ingredients. Experience authentic Ethiopian cuisine with a modern twist.',
-  phone: '+251 911 234 567',
-  email: 'info@yummycafe.com',
-  address: 'Bole, Addis Ababa, Ethiopia'
+  name: '',
+  tagline: '',
+  description: '',
+  phone: '',
+  email: '',
+  address: ''
 });
 
 const passwordForm = ref({
@@ -250,13 +253,51 @@ const passwordForm = ref({
   confirm: ''
 });
 
-const saveCafeInfo = () => {
-  // Save cafe info (will connect to API later)
-  localStorage.setItem('cafe_info', JSON.stringify(cafeInfo.value));
-  showSuccessMessage('Cafe information updated successfully!');
+// Load settings from API
+const loadSettings = async () => {
+  loading.value = true;
+  try {
+    const response = await api.get('/admin/settings');
+    const settings = response.data.data;
+    
+    cafeInfo.value = {
+      name: settings.name || '',
+      tagline: settings.tagline || '',
+      description: settings.description || '',
+      phone: settings.phone || '',
+      email: settings.email || '',
+      address: settings.address || ''
+    };
+  } catch (err: any) {
+    console.error('Failed to load settings:', err);
+    // Fallback to default values if API fails
+    cafeInfo.value = {
+      name: 'Amore Cafe',
+      tagline: 'Yum, Every Time!',
+      description: 'Welcome to Amore Cafe, where every dish is crafted with love and the finest ingredients.',
+      phone: '+251 911 234 567',
+      email: 'info@amorecafe.com',
+      address: 'Bole, Addis Ababa, Ethiopia'
+    };
+  } finally {
+    loading.value = false;
+  }
 };
 
-const changePassword = () => {
+const saveCafeInfo = async () => {
+  saving.value = true;
+  try {
+    await api.put('/admin/settings', cafeInfo.value);
+    showSuccessMessage('Cafe information updated successfully!');
+  } catch (err: any) {
+    console.error('Failed to save settings:', err);
+    alert(err.response?.data?.message || 'Failed to save settings');
+  } finally {
+    saving.value = false;
+  }
+};
+
+const changePassword = async () => {
   if (passwordForm.value.new !== passwordForm.value.confirm) {
     alert('New passwords do not match!');
     return;
@@ -267,13 +308,26 @@ const changePassword = () => {
     return;
   }
 
-  // Change password (will connect to API later)
-  showSuccessMessage('Password updated successfully!');
-  passwordForm.value = {
-    current: '',
-    new: '',
-    confirm: ''
-  };
+  saving.value = true;
+  try {
+    await api.post('/admin/auth/change-password', {
+      current_password: passwordForm.value.current,
+      new_password: passwordForm.value.new,
+      new_password_confirmation: passwordForm.value.confirm
+    });
+    
+    showSuccessMessage('Password updated successfully!');
+    passwordForm.value = {
+      current: '',
+      new: '',
+      confirm: ''
+    };
+  } catch (err: any) {
+    console.error('Failed to change password:', err);
+    alert(err.response?.data?.message || 'Failed to change password');
+  } finally {
+    saving.value = false;
+  }
 };
 
 const showSuccessMessage = (message: string) => {
@@ -283,6 +337,10 @@ const showSuccessMessage = (message: string) => {
     showSuccess.value = false;
   }, 3000);
 };
+
+onMounted(() => {
+  loadSettings();
+});
 
 const logout = () => {
   localStorage.removeItem('admin_token');
