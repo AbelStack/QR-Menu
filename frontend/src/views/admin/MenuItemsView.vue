@@ -683,17 +683,38 @@ const uploadImage = async (): Promise<string> => {
   formDataToSend.append('image', imageFile.value);
   
   try {
+    console.log('Uploading image:', imageFile.value.name, 'Size:', imageFile.value.size);
+    
     const response = await api.post('/admin/menu-items/upload-image', formDataToSend, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
+    
+    console.log('Upload response:', response.data);
     uploadingImage.value = false;
-    return response.data.url;
+    
+    // Return the URL from response
+    return response.data.url || response.data.path;
   } catch (err: any) {
     uploadingImage.value = false;
     console.error('Image upload failed:', err);
-    const errorMsg = err.response?.data?.message || 'Failed to upload image';
+    console.error('Error response:', err.response?.data);
+    
+    let errorMsg = 'Failed to upload image';
+    
+    if (err.response?.data?.message) {
+      errorMsg = err.response.data.message;
+    } else if (err.response?.data?.errors) {
+      const errors = err.response.data.errors;
+      const firstError = Object.values(errors)[0];
+      if (Array.isArray(firstError)) {
+        errorMsg = firstError[0] as string;
+      }
+    } else if (err.message) {
+      errorMsg = err.message;
+    }
+    
     throw new Error(errorMsg);
   }
 };
