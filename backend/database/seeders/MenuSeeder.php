@@ -57,7 +57,7 @@ class MenuSeeder extends Seeder
                 'name' => 'Burgers',
                 'nameAmharic' => 'በርገር',
                 'items' => [
-                    ['name' => 'Beef Burger', 'nameAmharic' => 'በሬ በርገር', 'price' => 400, 'image' => 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', 'description' => 'Juicy beef patty with fresh lettuce and tomatoes'],
+                    ['name' => 'Beef Burger', 'nameAmharic' => 'ስጋ በርገር', 'price' => 400, 'image' => 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', 'description' => 'Juicy beef patty with fresh lettuce and tomatoes'],
                     ['name' => 'Cheese Burger', 'nameAmharic' => 'ቺዝ በርገር', 'price' => 420, 'image' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=800&q=80', 'description' => 'Classic cheeseburger with melted cheddar'],
                     ['name' => 'Special Burger', 'nameAmharic' => 'ስፔሻል በርገር', 'price' => 450, 'tags' => ['Chef\'s Choice'], 'image' => 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80', 'description' => 'Our signature burger with special sauce'],
                     ['name' => 'Double Cheese Burger', 'nameAmharic' => 'ደብል ቺዝ በርገር', 'price' => 590, 'image' => 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=800&q=80', 'description' => 'Double patty with double cheese'],
@@ -169,8 +169,8 @@ class MenuSeeder extends Seeder
                 'name' => 'Juice & Shake',
                 'nameAmharic' => 'ጁስ እና ሼክ',
                 'items' => [
-                    ['name' => 'Orange Juice', 'nameAmharic' => 'ብርቱካን ጁስ', 'price' => 100, 'image' => 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80', 'description' => 'Freshly squeezed orange'],
-                    ['name' => 'Mango Juice', 'nameAmharic' => 'ማንጎ ጁስ', 'price' => 120, 'image' => 'https://images.unsplash.com/photo-1546173159-315724a31696?w=800&q=80', 'description' => 'Tropical mango blend'],
+                    ['name' => 'Orange Juice', 'nameAmharic' => 'ብርቱካን ጁስ', 'price' => 290, 'image' => 'https://images.unspዝlash.com/photo-1600271886742-f049cd451bba?w=800&q=80', 'description' => 'Freshly squeezed orange'],
+                    ['name' => 'Mango Juice', 'nameAmharic' => 'ማንጎ ጁስ', 'price' => 160, 'image' => 'https://images.unsplash.com/photo-1546173159-315724a31696?w=800&q=80', 'description' => 'Tropical mango blend'],
                     ['name' => 'Avocado Juice', 'nameAmharic' => 'አቮካዶ ጁስ', 'price' => 120, 'image' => 'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=800&q=80', 'description' => 'Creamy avocado smoothie'],
                     ['name' => 'Papaya Juice', 'nameAmharic' => 'ፓፓያ ጁስ', 'price' => 150, 'image' => 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800&q=80', 'description' => 'Sweet papaya juice'],
                     ['name' => 'Mixed Juice', 'nameAmharic' => 'ድብልቅ ጁስ', 'price' => 160, 'image' => 'https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=800&q=80', 'description' => 'Tropical fruit mix'],
