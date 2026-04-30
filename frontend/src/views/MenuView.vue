@@ -441,6 +441,9 @@ const toggleFavorite = (item: any) => {
 };
 
 const openItemDetail = (item: any) => {
+  console.log('Opening item detail:', item);
+  console.log('Has ingredients?', item.ingredients);
+  console.log('Has ingredients_amharic?', item.ingredients_amharic);
   selectedItem.value = item;
 };
 
