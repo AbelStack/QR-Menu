@@ -334,7 +334,7 @@ const maxPrice = ref(10000);
 const favorites = ref<string[]>([]);
 
 // Hero Image Slider
-const heroImages = ['/hero.jpg', '/pizza.jpg', '/juice.jpg', '/shwarma.jpg', '/chicken.jpg'];
+const heroImages = ['/hero.jpg', '/pizza.jpg', '/juice.jpg', '/shawarma.jpg', '/chicken.jpg'];
 const currentSlide = ref(0);
 let slideInterval: number;
 
