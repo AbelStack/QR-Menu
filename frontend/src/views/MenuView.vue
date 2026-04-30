@@ -108,7 +108,7 @@
             class="category-header"
             @click="toggleCategory(category.slug)"
           >
-            <h3 class="category-title">{{ category.name.toUpperCase() }}</h3>
+            <h3 class="category-title">{{ (currentLanguage === 'AM' && category.name_amharic ? category.name_amharic : category.name).toUpperCase() }}</h3>
             <svg 
               class="chevron-icon"
               :class="{ expanded: expandedCategories.includes(category.slug) }"
@@ -147,7 +147,7 @@
                   </button>
                 </div>
                 <div class="item-info">
-                  <h4 class="item-name">{{ item.name }}</h4>
+                  <h4 class="item-name">{{ currentLanguage === 'AM' && item.name_amharic ? item.name_amharic : item.name }}</h4>
                   <p class="item-price">{{ currencySymbol }} {{ convertPrice(item.price) }}</p>
                 </div>
               </div>
@@ -250,9 +250,9 @@
             {{ t('food').toUpperCase() }}
           </div>
 
-          <h2 class="detail-name">{{ selectedItem.name }}</h2>
+          <h2 class="detail-name">{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</h2>
           <p class="detail-price">{{ currencySymbol }} {{ convertPrice(selectedItem.price) }}</p>
-          <p class="detail-description">{{ selectedItem.description || selectedItem.name_amharic }}</p>
+          <p class="detail-description">{{ selectedItem.description || (currentLanguage === 'AM' ? selectedItem.name_amharic : selectedItem.name) }}</p>
 
           <div v-if="selectedItem.tags && selectedItem.tags.length" class="detail-tags">
             <span v-for="tag in selectedItem.tags" :key="tag" class="detail-tag">
@@ -266,7 +266,7 @@
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              <span>{{ selectedItem.name }}</span>
+              <span>{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</span>
             </div>
             <div class="ingredient-item">
               <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
