@@ -4,7 +4,7 @@
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-header">
         <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
-        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Yummy Cafe</h2>
+        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Amore Cafe</h2>
         <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M15 18l-6-6 6-6"/>
@@ -174,15 +174,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFeedbackCount } from '@/composables/useFeedbackCount';
+import { useMenuStore } from '@/stores/menuStore';
+import api from '@/services/api';
 
 const router = useRouter();
 const { unreadCount: unreadFeedbackCount } = useFeedbackCount();
+const menuStore = useMenuStore();
 const sidebarCollapsed = ref(false);
 const showAddModal = ref(false);
 const editingCategory = ref<any>(null);
+const loading = ref(false);
+const error = ref('');
 
 const formData = ref({
   name: '',
@@ -190,19 +195,34 @@ const formData = ref({
   type: ''
 });
 
-const categories = ref([
-  { id: 1, name: 'Burgers', nameAmharic: 'በርገር', type: 'Food', itemCount: 9 },
-  { id: 2, name: 'Pizza', nameAmharic: 'ፒዛ', type: 'Food', itemCount: 8 },
-  { id: 3, name: 'Sandwich', nameAmharic: 'ሳንድዊች', type: 'Food', itemCount: 5 },
-  { id: 4, name: 'Snacks', nameAmharic: 'መክሰስ', type: 'Food', itemCount: 6 },
-  { id: 5, name: 'Breakfast', nameAmharic: 'ቁርስ', type: 'Food', itemCount: 10 },
-  { id: 6, name: 'Lunch', nameAmharic: 'ምሳ', type: 'Food', itemCount: 10 },
-  { id: 7, name: 'Fish', nameAmharic: 'ዓሳ', type: 'Food', itemCount: 4 },
-  { id: 8, name: 'Salad', nameAmharic: 'ሰላጣ', type: 'Food', itemCount: 5 },
-  { id: 9, name: 'Juice & Shake', nameAmharic: 'ጁስ እና ሼክ', type: 'Drink', itemCount: 8 },
-]);
+const categories = ref<any[]>([]);
 
-const editCategory = (category: any) => {
+onMounted(async () => {
+  await loadCategories();
+});
+
+const loadCategories = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const response = await api.get('/admin/categories');
+    categories.value = response.data.data.map((cat: any) => ({
+      id: cat.id,
+      name: cat.name,
+      nameAmharic: cat.name_amharic || '',
+      slug: cat.slug,
+      type: cat.slug === 'juice-shake' ? 'Drink' : 'Food',
+      itemCount: cat.menu_items_count || 0
+    }));
+  } catch (err: any) {
+    error.value = err.message || 'Failed to load categories';
+    console.error('Failed to load categories:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const editCategory = async (category: any) => {
   editingCategory.value = category;
   formData.value = {
     name: category.name,
@@ -211,42 +231,45 @@ const editCategory = (category: any) => {
   };
 };
 
-const deleteCategory = (category: any) => {
-  if (confirm(`Are you sure you want to delete "${category.name}"?`)) {
-    const index = categories.value.findIndex(c => c.id === category.id);
-    if (index > -1) {
-      categories.value.splice(index, 1);
-    }
+const deleteCategory = async (category: any) => {
+  if (!confirm(`Are you sure you want to delete "${category.name}"?`)) {
+    return;
+  }
+
+  try {
+    await api.delete(`/categories/${category.id}`);
+    await loadCategories();
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Failed to delete category');
+    console.error('Failed to delete category:', err);
   }
 };
 
-const saveCategory = () => {
-  if (editingCategory.value) {
-    // Update existing category
-    const index = categories.value.findIndex(c => c.id === editingCategory.value.id);
-    if (index > -1) {
-      const existing = categories.value[index];
-      if (existing) {
-        categories.value[index] = {
-          id: existing.id,
-          name: formData.value.name,
-          nameAmharic: formData.value.nameAmharic,
-          type: formData.value.type,
-          itemCount: existing.itemCount
-        };
-      }
-    }
-  } else {
-    // Add new category
-    categories.value.push({
-      id: Date.now(),
+const saveCategory = async () => {
+  try {
+    const slug = formData.value.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    
+    const categoryData = {
       name: formData.value.name,
-      nameAmharic: formData.value.nameAmharic,
-      type: formData.value.type,
-      itemCount: 0
-    });
+      name_amharic: formData.value.nameAmharic,
+      slug: slug,
+      is_active: true
+    };
+
+    if (editingCategory.value) {
+      // Update existing category
+      await api.put(`/categories/${editingCategory.value.id}`, categoryData);
+    } else {
+      // Add new category
+      await api.post('/categories', categoryData);
+    }
+    
+    await loadCategories();
+    closeModal();
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Failed to save category');
+    console.error('Failed to save category:', err);
   }
-  closeModal();
 };
 
 const closeModal = () => {

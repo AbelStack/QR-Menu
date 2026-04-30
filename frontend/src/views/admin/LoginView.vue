@@ -3,7 +3,7 @@
     <div class="login-card">
       <div class="login-header">
         <img src="/logo.jpg" alt="Logo" class="login-logo" />
-        <h1 class="login-title">Yummy Cafe</h1>
+        <h1 class="login-title">Amore Cafe</h1>
         <p class="login-subtitle">Admin Dashboard</p>
       </div>
 

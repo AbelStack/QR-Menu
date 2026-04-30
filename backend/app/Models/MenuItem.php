@@ -16,6 +16,8 @@ class MenuItem extends Model
         'name_amharic',
         'description',
         'description_amharic',
+        'ingredients',
+        'ingredients_amharic',
         'price',
         'image',
         'tags',

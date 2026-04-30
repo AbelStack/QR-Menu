@@ -247,7 +247,7 @@
             <svg class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
             </svg>
-            {{ t('food').toUpperCase() }}
+            {{ getCategoryType(selectedItem).toUpperCase() }}
           </div>
 
           <h2 class="detail-name">{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</h2>
@@ -262,18 +262,32 @@
 
           <div class="detail-ingredients">
             <h3 class="ingredients-title">{{ t('ingredients') }}:</h3>
-            <div class="ingredient-item">
-              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span>{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</span>
-            </div>
-            <div class="ingredient-item">
-              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span>{{ t('freshIngredients') }}</span>
-            </div>
+            <template v-if="selectedItem.ingredients || selectedItem.ingredients_amharic">
+              <div 
+                v-for="(ingredient, index) in getIngredientsList(selectedItem)" 
+                :key="index"
+                class="ingredient-item"
+              >
+                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>{{ ingredient }}</span>
+              </div>
+            </template>
+            <template v-else>
+              <div class="ingredient-item">
+                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</span>
+              </div>
+              <div class="ingredient-item">
+                <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>{{ t('freshIngredients') }}</span>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -445,6 +459,29 @@ const getImageUrl = (imagePath: string) => {
   
   const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://yummycafe.clearsightinitiative.org';
   return `${baseUrl}${imagePath}`;
+};
+
+const getCategoryType = (item: any) => {
+  // Find the category this item belongs to
+  const category = menuStore.categories.find((cat: any) => 
+    cat.items?.some((i: any) => i.id === item.id || i.name === item.name)
+  );
+  
+  if (category && drinkCategories.includes(category.slug)) {
+    return t('drinks');
+  }
+  return t('food');
+};
+
+const getIngredientsList = (item: any) => {
+  const ingredientsText = currentLanguage.value === 'AM' && item.ingredients_amharic 
+    ? item.ingredients_amharic 
+    : item.ingredients;
+  
+  if (!ingredientsText) return [];
+  
+  // Split by comma and trim whitespace
+  return ingredientsText.split(',').map((ing: string) => ing.trim()).filter((ing: string) => ing);
 };
 </script>
 

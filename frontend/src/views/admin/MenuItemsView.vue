@@ -4,7 +4,7 @@
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-header">
         <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
-        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Yummy Cafe</h2>
+        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Amore Cafe</h2>
         <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M15 18l-6-6 6-6"/>
@@ -318,6 +318,26 @@
             ></textarea>
           </div>
 
+          <!-- Ingredients -->
+          <div class="form-group">
+            <label>Ingredients (English)</label>
+            <textarea 
+              v-model="formData.ingredients" 
+              placeholder="List ingredients separated by commas (e.g., Tomato, Cheese, Basil)"
+              rows="2"
+            ></textarea>
+          </div>
+
+          <!-- Ingredients Amharic -->
+          <div class="form-group">
+            <label>Ingredients (Amharic)</label>
+            <textarea 
+              v-model="formData.ingredients_amharic" 
+              placeholder="ንጥረ ነገሮችን በኮማ ይለዩ (ለምሳሌ፡ ቲማቲም፣ ቺዝ፣ ባዚል)"
+              rows="2"
+            ></textarea>
+          </div>
+
           <!-- Price -->
           <div class="form-group">
             <label>Price (ETB)</label>
@@ -431,6 +451,8 @@ const formData = ref({
   name_amharic: '',
   description: '',
   description_amharic: '',
+  ingredients: '',
+  ingredients_amharic: '',
   price: 0,
   image: '',
   is_available: true,
@@ -493,6 +515,8 @@ const openEditModal = (item: any) => {
     name_amharic: item.name_amharic || '',
     description: item.description || '',
     description_amharic: item.description_amharic || '',
+    ingredients: item.ingredients || '',
+    ingredients_amharic: item.ingredients_amharic || '',
     price: item.price || 0,
     image: item.image || '',
     is_available: item.is_available !== false,
@@ -532,6 +556,8 @@ const resetForm = () => {
     name_amharic: '',
     description: '',
     description_amharic: '',
+    ingredients: '',
+    ingredients_amharic: '',
     price: 0,
     image: '',
     is_available: true,

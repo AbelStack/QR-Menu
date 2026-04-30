@@ -4,7 +4,7 @@
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-header">
         <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
-        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Yummy Cafe</h2>
+        <h2 class="sidebar-title" v-if="!sidebarCollapsed">Amore Cafe</h2>
         <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M15 18l-6-6 6-6"/>
