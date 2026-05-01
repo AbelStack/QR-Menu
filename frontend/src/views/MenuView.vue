@@ -26,13 +26,31 @@
             />
             <span class="brand-name">Amore Cafe<br/> አሞር ካፌ</span>
           </div>
-          <button class="lang-btn" @click="$router.push('/profile')">
-            {{ currentLanguage }}
-            <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-          </button>
+          <div class="language-dropdown">
+            <button class="lang-btn" @click="showLangDropdown = !showLangDropdown">
+              {{ currentLanguage }}
+              <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </button>
+            <div v-if="showLangDropdown" class="lang-dropdown-menu">
+              <button 
+                class="lang-option" 
+                :class="{ active: currentLanguage === 'EN' }"
+                @click="changeLanguage('EN')"
+              >
+                English (EN)
+              </button>
+              <button 
+                class="lang-option" 
+                :class="{ active: currentLanguage === 'AM' }"
+                @click="changeLanguage('AM')"
+              >
+                አማርኛ (AM)
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="hero-text">
@@ -317,8 +335,8 @@
       
       <router-link to="/profile" class="nav-btn" :class="{ active: $route.path === '/profile' }">
         <svg viewBox="0 0 24 24" :fill="$route.path === '/profile' ? 'currentColor' : 'none'" stroke="currentColor">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
         </svg>
       </router-link>
     </nav>
@@ -326,12 +344,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useMenuStore } from '@/stores/menuStore';
 import { useTranslation } from '@/composables/useTranslation';
 import { useCurrency } from '@/composables/useCurrency';
 
-const { t, currentLanguage } = useTranslation();
+const { t, currentLanguage, setLanguage } = useTranslation();
 const { convertPrice, currencySymbol } = useCurrency();
 const menuStore = useMenuStore();
 
@@ -340,6 +358,7 @@ const activeTab = ref('all');
 const showFilterModal = ref(false);
 const selectedItem = ref<any>(null);
 const expandedCategories = ref<string[]>([]);
+const showLangDropdown = ref(false);
 
 // Filter state
 const sortBy = ref('recommended');
@@ -357,10 +376,8 @@ onMounted(async () => {
   favorites.value = JSON.parse(localStorage.getItem('favorites') || '[]');
   await menuStore.loadAll();
   
-  // Expand first two categories by default
-  if (menuStore.categories.length > 0) {
-    expandedCategories.value = menuStore.categories.slice(0, 2).map(cat => cat.slug);
-  }
+  // Expand first category by default
+  expandFirstCategory();
   
   // Start hero image slider
   slideInterval = window.setInterval(() => {
@@ -369,12 +386,24 @@ onMounted(async () => {
 });
 
 // Cleanup interval on unmount
-import { onUnmounted } from 'vue';
 onUnmounted(() => {
   if (slideInterval) {
     clearInterval(slideInterval);
   }
 });
+
+// Watch for tab changes and expand first category
+watch(activeTab, () => {
+  expandFirstCategory();
+});
+
+// Helper function to expand first category
+const expandFirstCategory = () => {
+  const categories = filteredCategories.value;
+  if (categories.length > 0) {
+    expandedCategories.value = [categories[0].slug];
+  }
+};
 
 // Food categories - using slug patterns
 // Drinks are identified by 'juice', 'shake', 'drink', 'beverage' in slug
@@ -427,9 +456,11 @@ const getFilteredItems = (category: any) => {
 const toggleCategory = (categorySlug: string) => {
   const index = expandedCategories.value.indexOf(categorySlug);
   if (index > -1) {
+    // Close this category
     expandedCategories.value.splice(index, 1);
   } else {
-    expandedCategories.value.push(categorySlug);
+    // Close all other categories and open this one
+    expandedCategories.value = [categorySlug];
   }
 };
 
@@ -512,6 +543,11 @@ const getIngredientsList = (item: any) => {
   
   // Split by comma and trim whitespace
   return ingredientsText.split(',').map((ing: string) => ing.trim()).filter((ing: string) => ing);
+};
+
+const changeLanguage = (lang: string) => {
+  setLanguage(lang);
+  showLangDropdown.value = false;
 };
 </script>
 
