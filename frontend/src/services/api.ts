@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://yummycafe.clearsightinitiative.org/api',
-  timeout: 10000,
+  timeout: 30000, // Increased to 30 seconds for image uploads
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -10,13 +10,19 @@ const api = axios.create({
   
 })
 
-// Request interceptor - Add auth token
+// Request interceptor - Add auth token and handle file uploads
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('admin_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    
+    // Increase timeout for file uploads
+    if (config.data instanceof FormData) {
+      config.timeout = 60000; // 60 seconds for file uploads
+    }
+    
     return config
   },
   (error) => {

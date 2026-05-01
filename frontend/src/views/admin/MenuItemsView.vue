@@ -700,10 +700,17 @@ const uploadImage = async (): Promise<string> => {
     uploadingImage.value = false;
     console.error('Image upload failed:', err);
     console.error('Error response:', err.response?.data);
+    console.error('Error code:', err.code);
     
     let errorMsg = 'Failed to upload image';
     
-    if (err.response?.data?.message) {
+    // Handle timeout errors specifically
+    if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+      errorMsg = 'Upload timeout. The image is taking too long to upload. Please try:\n' +
+                 '1. Use a smaller image (compress it first)\n' +
+                 '2. Check your internet connection\n' +
+                 '3. Try again in a moment';
+    } else if (err.response?.data?.message) {
       errorMsg = err.response.data.message;
     } else if (err.response?.data?.errors) {
       const errors = err.response.data.errors;
