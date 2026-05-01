@@ -2,9 +2,9 @@ import { ref, computed } from 'vue';
 
 const exchangeRates: Record<string, number> = {
   ETB: 1,
-  USD: 0.018,
-  EUR: 0.017,
-  GBP: 0.014,
+  USD: 0.00645,  // 1 USD = 155 ETB
+  EUR: 0.00556,  // 1 EUR = 180 ETB
+  GBP: 0.00488,  // 1 GBP = 205 ETB
 };
 
 const currencySymbols: Record<string, string> = {
