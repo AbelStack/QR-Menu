@@ -12,15 +12,26 @@ class RestaurantSetting extends Model
     protected $fillable = [
         'name',
         'tagline',
+        'description',
+        'story',
+        'mission',
+        'vision',
         'slug',
         'logo',
         'phone',
         'email',
         'address',
+        'location',
         'currency',
         'language',
         'is_active',
         'business_hours',
+        'facebook_url',
+        'instagram_url',
+        'twitter_url',
+        'hours_weekday',
+        'hours_saturday',
+        'hours_sunday',
     ];
 
     protected $casts = [

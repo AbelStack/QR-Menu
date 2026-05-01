@@ -32,15 +32,26 @@ class RestaurantSettingController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'tagline' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'story' => 'nullable|string',
+            'mission' => 'nullable|string',
+            'vision' => 'nullable|string',
             'slug' => 'sometimes|string|unique:restaurant_settings,slug,' . ($settings ? $settings->id : ''),
             'logo' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
             'currency' => 'sometimes|string|max:10',
             'language' => 'sometimes|string|max:10',
             'is_active' => 'boolean',
             'business_hours' => 'nullable|array',
+            'facebook_url' => 'nullable|string|max:255',
+            'instagram_url' => 'nullable|string|max:255',
+            'twitter_url' => 'nullable|string|max:255',
+            'hours_weekday' => 'nullable|string|max:100',
+            'hours_saturday' => 'nullable|string|max:100',
+            'hours_sunday' => 'nullable|string|max:100',
         ]);
 
         if ($settings) {

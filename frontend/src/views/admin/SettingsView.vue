@@ -91,7 +91,7 @@
                   v-model="cafeInfo.name"
                   type="text"
                   class="form-input"
-                  placeholder="Yummy Cafe"
+                  placeholder="Amore Cafe"
                   required
                 />
               </div>
@@ -102,18 +102,50 @@
                   v-model="cafeInfo.tagline"
                   type="text"
                   class="form-input"
-                  placeholder="Yum, Every Time!"
+                  placeholder="Premium Dining Experience"
                 />
               </div>
 
               <div class="form-group">
-                <label class="form-label">Description</label>
+                <label class="form-label">Short Description</label>
                 <textarea
                   v-model="cafeInfo.description"
                   class="form-textarea"
-                  rows="4"
-                  placeholder="Tell customers about your cafe..."
+                  rows="3"
+                  placeholder="Brief description for hero section..."
                 ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Our Story</label>
+                <textarea
+                  v-model="cafeInfo.story"
+                  class="form-textarea"
+                  rows="5"
+                  placeholder="Tell your cafe's story..."
+                ></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Our Mission</label>
+                  <textarea
+                    v-model="cafeInfo.mission"
+                    class="form-textarea"
+                    rows="4"
+                    placeholder="Your mission statement..."
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Our Vision</label>
+                  <textarea
+                    v-model="cafeInfo.vision"
+                    class="form-textarea"
+                    rows="4"
+                    placeholder="Your vision statement..."
+                  ></textarea>
+                </div>
               </div>
 
               <div class="form-row">
@@ -123,7 +155,7 @@
                     v-model="cafeInfo.phone"
                     type="tel"
                     class="form-input"
-                    placeholder="+251 911 234 567"
+                    placeholder="+251 11 123 4567"
                   />
                 </div>
 
@@ -133,28 +165,104 @@
                     v-model="cafeInfo.email"
                     type="email"
                     class="form-input"
-                    placeholder="info@yummycafe.com"
+                    placeholder="info@amorecafe.com"
                   />
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Address</label>
+                <label class="form-label">Full Address</label>
                 <input
                   v-model="cafeInfo.address"
                   type="text"
                   class="form-input"
-                  placeholder="Bole, Addis Ababa, Ethiopia"
+                  placeholder="Street address, City, Country"
                 />
               </div>
 
-              <button type="submit" class="save-btn">
+              <div class="form-group">
+                <label class="form-label">Location (Short)</label>
+                <input
+                  v-model="cafeInfo.location"
+                  type="text"
+                  class="form-input"
+                  placeholder="Addis Ababa, Ethiopia"
+                />
+              </div>
+
+              <div class="form-section-title">Opening Hours</div>
+
+              <div class="form-group">
+                <label class="form-label">Monday - Friday</label>
+                <input
+                  v-model="cafeInfo.hours_weekday"
+                  type="text"
+                  class="form-input"
+                  placeholder="8:00 AM - 10:00 PM"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Saturday</label>
+                  <input
+                    v-model="cafeInfo.hours_saturday"
+                    type="text"
+                    class="form-input"
+                    placeholder="9:00 AM - 11:00 PM"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Sunday</label>
+                  <input
+                    v-model="cafeInfo.hours_sunday"
+                    type="text"
+                    class="form-input"
+                    placeholder="9:00 AM - 9:00 PM"
+                  />
+                </div>
+              </div>
+
+              <div class="form-section-title">Social Media</div>
+
+              <div class="form-group">
+                <label class="form-label">Facebook URL</label>
+                <input
+                  v-model="cafeInfo.facebook_url"
+                  type="url"
+                  class="form-input"
+                  placeholder="https://facebook.com/amorecafe"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Instagram URL</label>
+                <input
+                  v-model="cafeInfo.instagram_url"
+                  type="url"
+                  class="form-input"
+                  placeholder="https://instagram.com/amorecafe"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Twitter URL</label>
+                <input
+                  v-model="cafeInfo.twitter_url"
+                  type="url"
+                  class="form-input"
+                  placeholder="https://twitter.com/amorecafe"
+                />
+              </div>
+
+              <button type="submit" class="save-btn" :disabled="saving">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/>
                   <polyline points="7 3 7 8 15 8"/>
                 </svg>
-                Save Changes
+                {{ saving ? 'Saving...' : 'Save Changes' }}
               </button>
             </form>
           </div>
@@ -242,9 +350,19 @@ const cafeInfo = ref({
   name: '',
   tagline: '',
   description: '',
+  story: '',
+  mission: '',
+  vision: '',
   phone: '',
   email: '',
-  address: ''
+  address: '',
+  location: '',
+  facebook_url: '',
+  instagram_url: '',
+  twitter_url: '',
+  hours_weekday: '',
+  hours_saturday: '',
+  hours_sunday: ''
 });
 
 const passwordForm = ref({
@@ -264,20 +382,40 @@ const loadSettings = async () => {
       name: settings.name || '',
       tagline: settings.tagline || '',
       description: settings.description || '',
+      story: settings.story || '',
+      mission: settings.mission || '',
+      vision: settings.vision || '',
       phone: settings.phone || '',
       email: settings.email || '',
-      address: settings.address || ''
+      address: settings.address || '',
+      location: settings.location || '',
+      facebook_url: settings.facebook_url || '',
+      instagram_url: settings.instagram_url || '',
+      twitter_url: settings.twitter_url || '',
+      hours_weekday: settings.hours_weekday || '',
+      hours_saturday: settings.hours_saturday || '',
+      hours_sunday: settings.hours_sunday || ''
     };
   } catch (err: any) {
     console.error('Failed to load settings:', err);
     // Fallback to default values if API fails
     cafeInfo.value = {
       name: 'Amore Cafe',
-      tagline: 'Yum, Every Time!',
+      tagline: 'Premium Dining Experience',
       description: 'Welcome to Amore Cafe, where every dish is crafted with love and the finest ingredients.',
-      phone: '+251 911 234 567',
+      story: '',
+      mission: '',
+      vision: '',
+      phone: '+251 11 123 4567',
       email: 'info@amorecafe.com',
-      address: 'Bole, Addis Ababa, Ethiopia'
+      address: 'Addis Ababa, Ethiopia',
+      location: 'Addis Ababa, Ethiopia',
+      facebook_url: '',
+      instagram_url: '',
+      twitter_url: '',
+      hours_weekday: '8:00 AM - 10:00 PM',
+      hours_saturday: '9:00 AM - 11:00 PM',
+      hours_sunday: '9:00 AM - 9:00 PM'
     };
   } finally {
     loading.value = false;
@@ -310,7 +448,7 @@ const changePassword = async () => {
 
   saving.value = true;
   try {
-    await api.post('/admin/auth/change-password', {
+    await api.post('/auth/change-password', {
       current_password: passwordForm.value.current,
       new_password: passwordForm.value.new,
       new_password_confirmation: passwordForm.value.confirm
@@ -399,6 +537,15 @@ const logout = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.form-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a2a;
 }
 
 .form-label {
