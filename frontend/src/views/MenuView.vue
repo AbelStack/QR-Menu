@@ -102,6 +102,7 @@
         <div 
           v-for="category in filteredCategories" 
           :key="category.id"
+          v-show="getFilteredItems(category).length > 0"
           class="category-section"
         >
           <button 
@@ -111,7 +112,7 @@
             <h3 class="category-title">{{ (currentLanguage === 'AM' && category.name_amharic ? category.name_amharic : category.name).toUpperCase() }}</h3>
             <svg 
               class="chevron-icon"
-              :class="{ expanded: expandedCategories.includes(category.slug) }"
+              :class="{ expanded: isExpanded(category.slug) }"
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor"
@@ -122,7 +123,7 @@
 
           <!-- Category Items -->
           <transition name="expand">
-            <div v-if="expandedCategories.includes(category.slug)" class="category-items">
+            <div v-if="isExpanded(category.slug)" class="category-items">
               <div 
                 v-for="(item, index) in getFilteredItems(category)" 
                 :key="index"
@@ -425,6 +426,15 @@ const toggleCategory = (categorySlug: string) => {
   } else {
     expandedCategories.value.push(categorySlug);
   }
+};
+
+const isExpanded = (categorySlug: string) => {
+  // If searching, expand all categories with results
+  if (searchQuery.value) {
+    return true;
+  }
+  // Otherwise, check if manually expanded
+  return expandedCategories.value.includes(categorySlug);
 };
 
 const isFavorite = (item: any) => {
