@@ -252,7 +252,7 @@
 
           <h2 class="detail-name">{{ currentLanguage === 'AM' && selectedItem.name_amharic ? selectedItem.name_amharic : selectedItem.name }}</h2>
           <p class="detail-price">{{ currencySymbol }} {{ convertPrice(selectedItem.price) }}</p>
-          <p class="detail-description">{{ selectedItem.description || (currentLanguage === 'AM' ? selectedItem.name_amharic : selectedItem.name) }}</p>
+          <p class="detail-description">{{ (currentLanguage === 'AM' && selectedItem.description_amharic) ? selectedItem.description_amharic : (selectedItem.description || (currentLanguage === 'AM' ? selectedItem.name_amharic : selectedItem.name)) }}</p>
 
           <div v-if="selectedItem.tags && selectedItem.tags.length" class="detail-tags">
             <span v-for="tag in selectedItem.tags" :key="tag" class="detail-tag">
