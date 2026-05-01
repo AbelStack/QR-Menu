@@ -216,6 +216,8 @@ const sidebarCollapsed = ref(false);
 const unreadFeedbackCount = ref(0);
 const categories = ref<any[]>([]);
 const loading = ref(false);
+const lastFetch = ref(0);
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
 
 const stats = computed(() => {
   const totalCategories = categories.value.length;
@@ -229,7 +231,16 @@ const stats = computed(() => {
   };
 });
 
+const isCacheValid = () => {
+  return Date.now() - lastFetch.value < CACHE_DURATION;
+};
+
 const loadCategories = async () => {
+  // Use cache if valid
+  if (categories.value.length > 0 && isCacheValid()) {
+    return;
+  }
+  
   loading.value = true;
   try {
     const response = await api.get('/admin/categories');
@@ -241,6 +252,7 @@ const loadCategories = async () => {
       type: cat.slug === 'juice-shake' ? 'Drink' : 'Food',
       itemCount: cat.menu_items_count || 0
     }));
+    lastFetch.value = Date.now();
   } catch (err) {
     console.error('Failed to load categories:', err);
   } finally {

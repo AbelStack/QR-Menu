@@ -9,6 +9,8 @@ export const useMenuStore = defineStore('menu', () => {
   const settings = ref<RestaurantSettings | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const lastFetch = ref<number>(0)
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes cache
 
   // Getters
   const categoriesWithItems = computed(() => {
@@ -22,8 +24,17 @@ export const useMenuStore = defineStore('menu', () => {
     return menuItems.value.filter(item => item.is_featured && item.is_available)
   })
 
+  // Check if cache is still valid
+  const isCacheValid = () => {
+    return Date.now() - lastFetch.value < CACHE_DURATION
+  }
+
   // Actions
-  async function fetchCategories() {
+  async function fetchCategories(force = false) {
+    if (!force && categories.value.length > 0 && isCacheValid()) {
+      return // Use cached data
+    }
+    
     loading.value = true
     error.value = null
     try {
@@ -37,7 +48,11 @@ export const useMenuStore = defineStore('menu', () => {
     }
   }
 
-  async function fetchMenuItems(params?: { category_id?: number; featured?: boolean; search?: string }) {
+  async function fetchMenuItems(params?: { category_id?: number; featured?: boolean; search?: string }, force = false) {
+    if (!force && menuItems.value.length > 0 && isCacheValid() && !params) {
+      return // Use cached data
+    }
+    
     loading.value = true
     error.value = null
     try {
@@ -51,7 +66,11 @@ export const useMenuStore = defineStore('menu', () => {
     }
   }
 
-  async function fetchSettings() {
+  async function fetchSettings(force = false) {
+    if (!force && settings.value && isCacheValid()) {
+      return // Use cached data
+    }
+    
     loading.value = true
     error.value = null
     try {
@@ -65,12 +84,19 @@ export const useMenuStore = defineStore('menu', () => {
     }
   }
 
-  async function loadAll() {
-    await Promise.allSettled([
-      fetchCategories(),
-      fetchMenuItems(),
-      fetchSettings()
+  async function loadAll(force = false) {
+    // If cache is valid and we have data, skip loading
+    if (!force && isCacheValid() && categories.value.length > 0 && menuItems.value.length > 0) {
+      return
+    }
+    
+    await Promise.all([
+      fetchCategories(force),
+      fetchMenuItems(undefined, force),
+      fetchSettings(force)
     ])
+    
+    lastFetch.value = Date.now()
   }
 
   function getItemsByCategory(categoryId: number) {
@@ -79,6 +105,10 @@ export const useMenuStore = defineStore('menu', () => {
 
   function getCategoryBySlug(slug: string) {
     return categories.value.find(cat => cat.slug === slug)
+  }
+
+  function clearCache() {
+    lastFetch.value = 0
   }
 
   return {
@@ -98,5 +128,6 @@ export const useMenuStore = defineStore('menu', () => {
     loadAll,
     getItemsByCategory,
     getCategoryBySlug,
+    clearCache,
   }
 })

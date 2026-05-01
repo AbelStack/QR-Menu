@@ -125,7 +125,7 @@
     <script>
       // Track when page starts loading
       const loadStartTime = Date.now();
-      const minLoadingTime = 2000; // Show loading screen for at least 2 seconds
+      const minLoadingTime = 800; // Show loading screen for at least 800ms (reduced from 2000ms)
       
       window.addEventListener('load', () => {
         const loadingScreen = document.getElementById('loading-screen');

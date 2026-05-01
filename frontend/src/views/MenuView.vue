@@ -115,38 +115,6 @@
         </div>
       </div>
 
-      <!-- Daily Specials / Featured Items -->
-      <div v-if="menuStore.featuredItems.length > 0" class="daily-specials">
-        <div class="specials-header">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <h3 class="specials-title">{{ t('dailySpecials') }}</h3>
-        </div>
-        <div class="specials-grid">
-          <div 
-            v-for="item in menuStore.featuredItems.slice(0, 4)" 
-            :key="item.id"
-            class="special-item"
-            @click="openItemDetail(item)"
-          >
-            <div class="special-image-container">
-              <img 
-                v-if="item.image"
-                :src="getImageUrl(item.image)" 
-                :alt="item.name"
-                class="special-image"
-              />
-              <div class="special-badge">{{ t('special') }}</div>
-            </div>
-            <div class="special-info">
-              <h4 class="special-name">{{ currentLanguage === 'AM' && item.name_amharic ? item.name_amharic : item.name }}</h4>
-              <p class="special-price">{{ currencySymbol }} {{ convertPrice(item.price) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Categories -->
       <div class="categories">
         <div 
@@ -186,6 +154,7 @@
                     :src="getImageUrl(item.image)" 
                     :alt="item.name"
                     class="item-image"
+                    loading="lazy"
                   />
                   <button 
                     class="favorite-btn"
