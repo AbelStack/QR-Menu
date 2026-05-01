@@ -399,8 +399,9 @@ const getFilteredItems = (category: any) => {
     const query = searchQuery.value.toLowerCase();
     items = items.filter((item: any) => 
       item.name.toLowerCase().includes(query) ||
-      item.name_amharic.toLowerCase().includes(query) ||
-      (item.description && item.description.toLowerCase().includes(query))
+      (item.name_amharic && item.name_amharic.toLowerCase().includes(query)) ||
+      (item.description && item.description.toLowerCase().includes(query)) ||
+      (item.description_amharic && item.description_amharic.toLowerCase().includes(query))
     );
   }
   
