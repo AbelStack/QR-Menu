@@ -7,8 +7,8 @@
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </div>
-      <h1 class="page-title">Share Your Feedback</h1>
-      <p class="page-subtitle">Help us improve our services</p>
+      <h1 class="page-title">{{ t('shareFeedback') }}</h1>
+      <p class="page-subtitle">{{ t('helpImprove') }}</p>
     </div>
 
     <!-- Content -->
@@ -16,20 +16,20 @@
       <form @submit.prevent="submitFeedback" class="feedback-form">
         <!-- Category -->
         <div class="form-group">
-          <label class="form-label">CATEGORY</label>
+          <label class="form-label">{{ t('category') }}</label>
           <select v-model="feedback.category" class="form-select" required>
-            <option value="">Select a category</option>
-            <option value="food">Food Quality</option>
-            <option value="service">Service</option>
-            <option value="ambiance">Ambiance</option>
-            <option value="cleanliness">Cleanliness</option>
-            <option value="other">Other</option>
+            <option value="">{{ t('selectCategory') }}</option>
+            <option value="food">{{ t('foodQuality') }}</option>
+            <option value="service">{{ t('service') }}</option>
+            <option value="ambiance">{{ t('ambiance') }}</option>
+            <option value="cleanliness">{{ t('cleanliness') }}</option>
+            <option value="other">{{ t('other') }}</option>
           </select>
         </div>
 
         <!-- Rating -->
         <div class="form-group">
-          <label class="form-label">OVERALL RATING</label>
+          <label class="form-label">{{ t('overallRating') }}</label>
           <div class="rating-stars">
             <button
               v-for="star in 5"
@@ -48,11 +48,11 @@
 
         <!-- Feedback Text -->
         <div class="form-group">
-          <label class="form-label">YOUR FEEDBACK</label>
+          <label class="form-label">{{ t('yourFeedback') }}</label>
           <textarea
             v-model="feedback.message"
             class="form-textarea"
-            placeholder="Share your experience with us..."
+            :placeholder="t('shareFeedbackPlaceholder')"
             rows="6"
             required
           ></textarea>
@@ -60,7 +60,7 @@
 
         <!-- Submit Button -->
         <button type="submit" class="submit-btn" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Submitting...' : 'Submit Feedback' }}
+          {{ isSubmitting ? t('submitting') : t('submitFeedback') }}
         </button>
       </form>
 
@@ -70,7 +70,7 @@
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
           <polyline points="22 4 12 14.01 9 11.01"/>
         </svg>
-        <p>Thank you for your feedback!</p>
+        <p>{{ t('thankYou') }}</p>
       </div>
     </div>
 
@@ -108,6 +108,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import api from '@/services/api';
+import { useTranslation } from '@/composables/useTranslation';
+
+const { t } = useTranslation();
 
 const feedback = ref({
   category: '',
