@@ -202,6 +202,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+import { useFeedbackCount } from '@/composables/useFeedbackCount';
 
 const router = useRouter();
 const sidebarCollapsed = ref(false);
@@ -209,6 +210,7 @@ const loading = ref(false);
 const error = ref('');
 const feedbackList = ref<any[]>([]);
 const filterStatus = ref('');
+const { loadFeedbackCount } = useFeedbackCount();
 
 const loadFeedback = async () => {
   loading.value = true;
@@ -236,6 +238,8 @@ const markAsRead = async (id: number) => {
   try {
     await api.post(`/admin/feedback/${id}/mark-read`);
     await loadFeedback();
+    // Refresh the unread count in the notification badge
+    await loadFeedbackCount();
   } catch (err: any) {
     alert(err.response?.data?.message || 'Failed to mark as read');
   }
@@ -245,6 +249,8 @@ const markAsResolved = async (id: number) => {
   try {
     await api.post(`/admin/feedback/${id}/mark-resolved`);
     await loadFeedback();
+    // Refresh the unread count in the notification badge
+    await loadFeedbackCount();
   } catch (err: any) {
     alert(err.response?.data?.message || 'Failed to mark as resolved');
   }
@@ -258,6 +264,8 @@ const deleteFeedback = async (id: number) => {
   try {
     await api.delete(`/admin/feedback/${id}`);
     await loadFeedback();
+    // Refresh the unread count in the notification badge
+    await loadFeedbackCount();
   } catch (err: any) {
     alert(err.response?.data?.message || 'Failed to delete feedback');
   }
