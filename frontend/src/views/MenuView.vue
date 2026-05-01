@@ -400,7 +400,7 @@ watch(activeTab, () => {
 // Helper function to expand first category
 const expandFirstCategory = () => {
   const categories = filteredCategories.value;
-  if (categories.length > 0) {
+  if (categories.length > 0 && categories[0]?.slug) {
     expandedCategories.value = [categories[0].slug];
   }
 };
