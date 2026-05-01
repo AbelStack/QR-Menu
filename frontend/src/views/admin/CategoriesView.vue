@@ -258,17 +258,28 @@ const saveCategory = async () => {
 
     if (editingCategory.value) {
       // Update existing category
-      await api.put(`/admin/categories/${editingCategory.value.id}`, categoryData);
+      console.log('Updating category:', editingCategory.value.id, categoryData);
+      const response = await api.put(`/admin/categories/${editingCategory.value.id}`, categoryData);
+      console.log('Update response:', response.data);
     } else {
       // Add new category
-      await api.post('/admin/categories', categoryData);
+      console.log('Creating category:', categoryData);
+      const response = await api.post('/admin/categories', categoryData);
+      console.log('Create response:', response.data);
     }
     
+    // Reload categories and menu store
     await loadCategories();
+    await menuStore.loadAll();
     closeModal();
+    
+    // Show success message
+    alert(editingCategory.value ? 'Category updated successfully!' : 'Category added successfully!');
   } catch (err: any) {
-    alert(err.response?.data?.message || 'Failed to save category');
     console.error('Failed to save category:', err);
+    console.error('Error response:', err.response?.data);
+    const errorMessage = err.response?.data?.message || err.message || 'Failed to save category';
+    alert(errorMessage);
   }
 };
 

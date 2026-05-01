@@ -376,17 +376,22 @@ onUnmounted(() => {
   }
 });
 
-// Food categories
-const foodCategories = ['burgers', 'pizza', 'sandwich', 'snacks', 'breakfast', 'lunch', 'fish', 'salad'];
-const drinkCategories = ['juice-shake'];
+// Food categories - using slug patterns
+// Drinks are identified by 'juice', 'shake', 'drink', 'beverage' in slug
+// Everything else is considered food
+const drinkKeywords = ['juice', 'shake', 'drink', 'beverage', 'coffee', 'tea'];
+
+const isDrinkCategory = (slug: string) => {
+  return drinkKeywords.some(keyword => slug.toLowerCase().includes(keyword));
+};
 
 const filteredCategories = computed(() => {
   let categories = menuStore.categoriesWithItems;
   
   if (activeTab.value === 'food') {
-    categories = categories.filter(cat => foodCategories.includes(cat.slug));
+    categories = categories.filter(cat => !isDrinkCategory(cat.slug));
   } else if (activeTab.value === 'drinks') {
-    categories = categories.filter(cat => drinkCategories.includes(cat.slug));
+    categories = categories.filter(cat => isDrinkCategory(cat.slug));
   }
   
   return categories;
@@ -479,7 +484,7 @@ const getCategoryType = (item: any) => {
   // First try to find by category_id
   if (item.category_id) {
     const category = menuStore.categories.find((cat: any) => cat.id === item.category_id);
-    if (category && drinkCategories.includes(category.slug)) {
+    if (category && isDrinkCategory(category.slug)) {
       return t('drinks');
     }
     if (category) {
@@ -492,7 +497,7 @@ const getCategoryType = (item: any) => {
     cat.items?.some((i: any) => i.id === item.id || i.name === item.name)
   );
   
-  if (category && drinkCategories.includes(category.slug)) {
+  if (category && isDrinkCategory(category.slug)) {
     return t('drinks');
   }
   return t('food');
