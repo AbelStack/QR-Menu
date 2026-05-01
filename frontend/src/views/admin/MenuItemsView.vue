@@ -774,23 +774,20 @@ const saveItem = async () => {
     
     if (isEditing.value && formData.value.id) {
       // Update existing item
-      const response = await api.put(`/admin/menu-items/${formData.value.id}`, dataToSend);
+      await api.put(`/admin/menu-items/${formData.value.id}`, dataToSend);
       formSuccess.value = 'Menu item updated successfully!';
       
-      // Update the item in the list immediately
-      const index = menuItems.value.findIndex(item => item.id === formData.value.id);
-      if (index !== -1 && response.data.data) {
-        menuItems.value[index] = response.data.data;
-      }
+      // Clear cache and reload to show updates immediately
+      menuStore.clearCache();
+      await menuStore.loadAll();
     } else {
       // Create new item
-      const response = await api.post('/admin/menu-items', dataToSend);
+      await api.post('/admin/menu-items', dataToSend);
       formSuccess.value = 'Menu item added successfully!';
       
-      // Add the new item to the list immediately
-      if (response.data.data) {
-        menuItems.value.unshift(response.data.data);
-      }
+      // Clear cache and reload to show new item immediately
+      menuStore.clearCache();
+      await menuStore.loadAll();
     }
     
     // Close modal after short delay to show success message
@@ -830,11 +827,9 @@ const confirmDelete = async () => {
   try {
     await api.delete(`/admin/menu-items/${itemToDelete.value.id}`);
     
-    // Remove the item from the list immediately
-    const index = menuItems.value.findIndex(item => item.id === itemToDelete.value?.id);
-    if (index !== -1) {
-      menuItems.value.splice(index, 1);
-    }
+    // Clear cache and reload to show deletion immediately
+    menuStore.clearCache();
+    await menuStore.loadAll();
     
     closeDeleteModal();
     
