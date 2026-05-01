@@ -68,11 +68,16 @@
       
       <router-link to="/profile" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
         </svg>
       </router-link>
     </nav>
+
+    <!-- Footer Credit -->
+    <div class="footer-credit">
+      Developed by Mela Technologies
+    </div>
   </div>
 </template>
 
@@ -283,8 +288,29 @@ const removeFavorite = (item: any) => {
   stroke-width: 2;
 }
 
+/* Footer Credit */
+.footer-credit {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-quaternary);
+  background: var(--bg-primary);
+  z-index: 99;
+}
+
 @media (max-width: 480px) {
   .bottom-nav {
+    left: 0;
+    transform: none;
+  }
+  
+  .footer-credit {
     left: 0;
     transform: none;
   }

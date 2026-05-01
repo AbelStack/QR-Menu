@@ -145,6 +145,11 @@
         </svg>
       </router-link>
     </nav>
+
+    <!-- Footer Credit -->
+    <div class="footer-credit">
+      Developed by Mela Technologies
+    </div>
   </div>
 </template>
 
@@ -458,8 +463,29 @@ input:checked + .toggle-slider:before {
   stroke-width: 2;
 }
 
+/* Footer Credit */
+.footer-credit {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-quaternary);
+  background: var(--bg-primary);
+  z-index: 99;
+}
+
 @media (max-width: 480px) {
   .bottom-nav {
+    left: 0;
+    transform: none;
+  }
+  
+  .footer-credit {
     left: 0;
     transform: none;
   }

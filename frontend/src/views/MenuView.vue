@@ -340,6 +340,11 @@
         </svg>
       </router-link>
     </nav>
+
+    <!-- Footer Credit -->
+    <div class="footer-credit">
+      Developed by Mela Technologies
+    </div>
   </div>
 </template>
 
