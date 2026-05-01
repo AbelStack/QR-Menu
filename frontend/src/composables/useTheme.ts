@@ -1,11 +1,11 @@
 import { ref, watch, onMounted } from 'vue';
 
-const isDarkMode = ref(true);
+const isDarkMode = ref(false); // Default to light mode
 
 export function useTheme() {
   const initTheme = () => {
     const savedTheme = localStorage.getItem('darkMode');
-    isDarkMode.value = savedTheme !== 'false'; // Default to dark mode
+    isDarkMode.value = savedTheme === 'true'; // Default to light mode unless explicitly set to dark
     applyTheme();
   };
 

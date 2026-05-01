@@ -170,7 +170,7 @@ const { setCurrency, currentCurrency } = useCurrency();
 const { isDarkMode, toggleTheme } = useTheme();
 
 const preferences = ref({
-  darkMode: true,
+  darkMode: false, // Default to light mode
 });
 
 const showLanguageModal = ref(false);

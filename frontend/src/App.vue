@@ -27,7 +27,7 @@ onMounted(() => {
   background: var(--bg-primary);
   min-height: 100vh;
   position: relative;
-  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  box-shadow: 0 0 50px var(--shadow);
   transition: background-color 0.3s ease;
 }
 
