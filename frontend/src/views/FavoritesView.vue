@@ -24,9 +24,10 @@
           <div class="item-image-container">
             <img 
               v-if="item.image"
-              :src="item.image.startsWith('http') ? item.image : `http://localhost:8000${item.image}`" 
+              :src="getImageUrl(item.image)" 
               :alt="item.name"
               class="item-image"
+              loading="lazy"
             />
             <button 
               class="favorite-btn active"
@@ -123,6 +124,14 @@ const removeFavorite = (item: any) => {
     loadFavorites();
   }
 };
+
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://yummycafe.clearsightinitiative.org';
+  return `${baseUrl}${imagePath}`;
+};
 </script>
 
 <style scoped>
@@ -212,18 +221,25 @@ const removeFavorite = (item: any) => {
   right: 8px;
   width: 32px;
   height: 32px;
-  background: rgba(0,0,0,0.5);
-  border: none;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  color: #666;
   backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.favorite-btn:hover {
+  background: rgba(255,255,255,1);
+  transform: scale(1.1);
 }
 
 .favorite-btn.active {
   color: #ff4757;
+  background: rgba(255,255,255,1);
 }
 
 .favorite-btn svg {
