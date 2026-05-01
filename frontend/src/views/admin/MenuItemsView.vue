@@ -774,16 +774,24 @@ const saveItem = async () => {
     
     if (isEditing.value && formData.value.id) {
       // Update existing item
-      await api.put(`/admin/menu-items/${formData.value.id}`, dataToSend);
+      const response = await api.put(`/admin/menu-items/${formData.value.id}`, dataToSend);
       formSuccess.value = 'Menu item updated successfully!';
+      
+      // Update the item in the list immediately
+      const index = menuItems.value.findIndex(item => item.id === formData.value.id);
+      if (index !== -1 && response.data.data) {
+        menuItems.value[index] = response.data.data;
+      }
     } else {
       // Create new item
-      await api.post('/admin/menu-items', dataToSend);
+      const response = await api.post('/admin/menu-items', dataToSend);
       formSuccess.value = 'Menu item added successfully!';
+      
+      // Add the new item to the list immediately
+      if (response.data.data) {
+        menuItems.value.unshift(response.data.data);
+      }
     }
-    
-    // Reload menu items
-    await loadMenuItems();
     
     // Close modal after short delay to show success message
     setTimeout(() => {
@@ -821,10 +829,16 @@ const confirmDelete = async () => {
   
   try {
     await api.delete(`/admin/menu-items/${itemToDelete.value.id}`);
-    await loadMenuItems();
+    
+    // Remove the item from the list immediately
+    const index = menuItems.value.findIndex(item => item.id === itemToDelete.value?.id);
+    if (index !== -1) {
+      menuItems.value.splice(index, 1);
+    }
+    
     closeDeleteModal();
     
-    // Show success notification (you can add a toast notification here)
+    // Show success notification
     console.log('Menu item deleted successfully');
   } catch (err: any) {
     console.error('Delete failed:', err);

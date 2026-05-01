@@ -336,10 +336,12 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFeedbackCount } from '@/composables/useFeedbackCount';
+import { useMenuStore } from '@/stores/menuStore';
 import api from '@/services/api';
 
 const router = useRouter();
 const { unreadCount: unreadFeedbackCount } = useFeedbackCount();
+const menuStore = useMenuStore();
 const sidebarCollapsed = ref(false);
 const showSuccess = ref(false);
 const successMessage = ref('');
@@ -426,6 +428,10 @@ const saveCafeInfo = async () => {
   saving.value = true;
   try {
     await api.put('/admin/settings', cafeInfo.value);
+    
+    // Clear menu store cache so customer side sees updates
+    menuStore.clearCache();
+    
     showSuccessMessage('Cafe information updated successfully!');
   } catch (err: any) {
     console.error('Failed to save settings:', err);

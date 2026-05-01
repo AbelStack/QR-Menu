@@ -238,7 +238,17 @@ const deleteCategory = async (category: any) => {
 
   try {
     await api.delete(`/admin/categories/${category.id}`);
-    await loadCategories();
+    
+    // Remove the category from the list immediately
+    const index = categories.value.findIndex(cat => cat.id === category.id);
+    if (index !== -1) {
+      categories.value.splice(index, 1);
+    }
+    
+    // Clear menu store cache
+    menuStore.clearCache();
+    
+    alert('Category deleted successfully!');
   } catch (err: any) {
     alert(err.response?.data?.message || 'Failed to delete category');
     console.error('Failed to delete category:', err);
@@ -261,20 +271,38 @@ const saveCategory = async () => {
       console.log('Updating category:', editingCategory.value.id, categoryData);
       const response = await api.put(`/admin/categories/${editingCategory.value.id}`, categoryData);
       console.log('Update response:', response.data);
+      
+      // Update the category in the list immediately
+      const index = categories.value.findIndex(cat => cat.id === editingCategory.value?.id);
+      if (index !== -1 && response.data.data) {
+        categories.value[index] = {
+          ...response.data.data,
+          itemCount: categories.value[index].itemCount
+        };
+      }
+      
+      alert('Category updated successfully!');
     } else {
       // Add new category
       console.log('Creating category:', categoryData);
       const response = await api.post('/admin/categories', categoryData);
       console.log('Create response:', response.data);
+      
+      // Add the new category to the list immediately
+      if (response.data.data) {
+        categories.value.push({
+          ...response.data.data,
+          itemCount: 0
+        });
+      }
+      
+      alert('Category added successfully!');
     }
     
-    // Reload categories and menu store
-    await loadCategories();
-    await menuStore.loadAll();
-    closeModal();
+    // Clear menu store cache to force refresh on customer side
+    menuStore.clearCache();
     
-    // Show success message
-    alert(editingCategory.value ? 'Category updated successfully!' : 'Category added successfully!');
+    closeModal();
   } catch (err: any) {
     console.error('Failed to save category:', err);
     console.error('Error response:', err.response?.data);
