@@ -237,12 +237,12 @@
               <div class="form-section-title">Social Media</div>
 
               <div class="form-group">
-                <label class="form-label">Facebook URL</label>
+                <label class="form-label">Telegram URL</label>
                 <input
                   v-model="cafeInfo.facebook_url"
                   type="url"
                   class="form-input"
-                  placeholder="https://facebook.com/amorecafe"
+                  placeholder="https://t.me/amorecafe"
                 />
               </div>
 
@@ -257,12 +257,12 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Twitter URL</label>
+                <label class="form-label">TikTok URL</label>
                 <input
                   v-model="cafeInfo.twitter_url"
                   type="url"
                   class="form-input"
-                  placeholder="https://twitter.com/amorecafe"
+                  placeholder="https://tiktok.com/@amorecafe"
                 />
               </div>
 
