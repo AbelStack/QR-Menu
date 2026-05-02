@@ -1,7 +1,10 @@
 <template>
   <div class="admin-container">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" :class="{ show: showMobileSidebar }" @click="showMobileSidebar = false"></div>
+    
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'show-mobile': showMobileSidebar }">
       <div class="sidebar-header">
         <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
         <h2 class="sidebar-title" v-if="!sidebarCollapsed">Amore Cafe</h2>
@@ -70,6 +73,13 @@
       <!-- Top Bar -->
       <header class="top-bar">
         <div class="top-bar-left">
+          <button class="mobile-menu-toggle" @click="toggleMobileSidebar" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
           <h1 class="page-title">Dashboard</h1>
         </div>
         <div class="top-bar-right">
@@ -213,11 +223,16 @@ import api from '@/services/api';
 
 const router = useRouter();
 const sidebarCollapsed = ref(false);
+const showMobileSidebar = ref(false);
 const unreadFeedbackCount = ref(0);
 const categories = ref<any[]>([]);
 const loading = ref(false);
 const lastFetch = ref(0);
 const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+
+const toggleMobileSidebar = () => {
+  showMobileSidebar.value = !showMobileSidebar.value;
+};
 
 const stats = computed(() => {
   const totalCategories = categories.value.length;
@@ -249,7 +264,7 @@ const loadCategories = async () => {
       name: cat.name,
       nameAmharic: cat.name_amharic || '',
       slug: cat.slug,
-      type: cat.slug === 'juice-shake' ? 'Drink' : 'Food',
+      type: cat.type || 'Food',
       itemCount: cat.menu_items_count || 0
     }));
     lastFetch.value = Date.now();
@@ -287,3 +302,10 @@ const logout = () => {
 </script>
 
 <style scoped src="./admin.css"></style>
+<style scoped>
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+}
+</style>

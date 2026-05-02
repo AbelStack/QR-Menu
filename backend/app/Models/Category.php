@@ -13,6 +13,7 @@ class Category extends Model
     protected $fillable = [
         'name',
         'name_amharic',
+        'type',
         'slug',
         'sort_order',
         'is_active',

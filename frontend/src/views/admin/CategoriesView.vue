@@ -211,7 +211,7 @@ const loadCategories = async () => {
       name: cat.name,
       nameAmharic: cat.name_amharic || '',
       slug: cat.slug,
-      type: cat.slug === 'juice-shake' ? 'Drink' : 'Food',
+      type: cat.type || 'Food',
       itemCount: cat.menu_items_count || 0
     }));
   } catch (err: any) {
@@ -262,6 +262,7 @@ const saveCategory = async () => {
     const categoryData = {
       name: formData.value.name,
       name_amharic: formData.value.nameAmharic,
+      type: formData.value.type,
       slug: slug,
       is_active: true
     };
@@ -276,7 +277,11 @@ const saveCategory = async () => {
       const index = categories.value.findIndex(cat => cat.id === editingCategory.value?.id);
       if (index !== -1 && response.data.data) {
         categories.value[index] = {
-          ...response.data.data,
+          id: response.data.data.id,
+          name: response.data.data.name,
+          nameAmharic: response.data.data.name_amharic || '',
+          slug: response.data.data.slug,
+          type: response.data.data.type || 'Food',
           itemCount: categories.value[index].itemCount
         };
       }
@@ -291,7 +296,11 @@ const saveCategory = async () => {
       // Add the new category to the list immediately
       if (response.data.data) {
         categories.value.push({
-          ...response.data.data,
+          id: response.data.data.id,
+          name: response.data.data.name,
+          nameAmharic: response.data.data.name_amharic || '',
+          slug: response.data.data.slug,
+          type: response.data.data.type || 'Food',
           itemCount: 0
         });
       }

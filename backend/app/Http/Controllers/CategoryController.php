@@ -23,6 +23,7 @@ class CategoryController extends Controller
                 'id' => $category->id,
                 'name' => $category->name,
                 'name_amharic' => $category->name_amharic,
+                'type' => $category->type ?? 'Food',
                 'slug' => $category->slug,
                 'sort_order' => $category->sort_order,
                 'is_active' => $category->is_active,
@@ -49,6 +50,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'name_amharic' => 'required|string|max:255',
+            'type' => 'required|in:Food,Drink',
             'slug' => 'nullable|string|unique:categories,slug',
             'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
@@ -79,6 +81,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'name_amharic' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:Food,Drink',
             'slug' => 'sometimes|string|unique:categories,slug,' . $id,
             'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
