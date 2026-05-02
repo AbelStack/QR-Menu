@@ -424,21 +424,14 @@ const expandFirstCategory = () => {
 };
 
 // Food categories - using slug patterns
-// Drinks are identified by 'juice', 'shake', 'drink', 'beverage' in slug
-// Everything else is considered food
-const drinkKeywords = ['juice', 'shake', 'drink', 'beverage', 'coffee', 'tea'];
-
-const isDrinkCategory = (slug: string) => {
-  return drinkKeywords.some(keyword => slug.toLowerCase().includes(keyword));
-};
-
+// Filter categories based on type from database
 const filteredCategories = computed(() => {
   let categories = menuStore.categoriesWithItems;
   
   if (activeTab.value === 'food') {
-    categories = categories.filter(cat => !isDrinkCategory(cat.slug));
+    categories = categories.filter(cat => cat.type !== 'Drink');
   } else if (activeTab.value === 'drinks') {
-    categories = categories.filter(cat => isDrinkCategory(cat.slug));
+    categories = categories.filter(cat => cat.type === 'Drink');
   }
   
   return categories;
@@ -533,11 +526,8 @@ const getCategoryType = (item: any) => {
   // First try to find by category_id
   if (item.category_id) {
     const category = menuStore.categories.find((cat: any) => cat.id === item.category_id);
-    if (category && isDrinkCategory(category.slug)) {
-      return t('drinks');
-    }
     if (category) {
-      return t('food');
+      return category.type === 'Drink' ? t('drinks') : t('food');
     }
   }
   
@@ -546,8 +536,8 @@ const getCategoryType = (item: any) => {
     cat.items?.some((i: any) => i.id === item.id || i.name === item.name)
   );
   
-  if (category && isDrinkCategory(category.slug)) {
-    return t('drinks');
+  if (category) {
+    return category.type === 'Drink' ? t('drinks') : t('food');
   }
   return t('food');
 };

@@ -24,6 +24,7 @@ export interface Category {
   id: number
   name: string
   name_amharic: string
+  type?: 'Food' | 'Drink'
   slug: string
   sort_order: number
   is_active: boolean

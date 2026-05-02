@@ -1,7 +1,10 @@
 <template>
   <div class="admin-container">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" :class="{ show: showMobileSidebar }" @click="showMobileSidebar = false"></div>
+    
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'show-mobile': showMobileSidebar }">
       <div class="sidebar-header">
         <img src="/logo.jpg" alt="Logo" class="sidebar-logo" v-if="!sidebarCollapsed" />
         <h2 class="sidebar-title" v-if="!sidebarCollapsed">Amore Cafe</h2>
@@ -69,6 +72,13 @@
       <!-- Top Bar -->
       <header class="top-bar">
         <div class="top-bar-left">
+          <button class="mobile-menu-toggle" @click="showMobileSidebar = !showMobileSidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
           <h1 class="page-title">Customer Feedback</h1>
         </div>
         <div class="top-bar-right">
@@ -206,6 +216,7 @@ import { useFeedbackCount } from '@/composables/useFeedbackCount';
 
 const router = useRouter();
 const sidebarCollapsed = ref(false);
+const showMobileSidebar = ref(false);
 const loading = ref(false);
 const error = ref('');
 const feedbackList = ref<any[]>([]);
